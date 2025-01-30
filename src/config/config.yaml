@@ -1,0 +1,21 @@
+app:
+  name: "Restaurant Booking API"
+  environment: "development"
+  port: 3000
+  host: "localhost"
+  apiPrefix: "/api/v1"
+
+cors:
+  allowedOrigins:
+    - "http://localhost:3000"
+    - "http://localhost:3001"
+  allowedMethods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "PATCH"
+
+rateLimit:
+  windowMs: 900000  
+  maxRequests: 100

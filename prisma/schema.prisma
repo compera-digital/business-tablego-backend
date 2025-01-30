@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurant {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  address     String
+  city        String
+  country     String
+  phone       String?
+  email       String @unique
+  website     String?
+  owner       String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  branches     Branch[]
+  openingHours OpeningHours[]
+  reservations Reservation[]
+  menu         MenuItem[]
+}
+
+model Branch {
+  id           String      @id @default(uuid())
+  name         String
+  address      String
+  phone        String?
+  email        String @unique
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+  reservations Reservation[]
+}
+
+model OpeningHours {
+  id           String     @id @default(uuid())
+  dayOfWeek    String
+  openTime     String
+  closeTime    String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+}
+
+model Reservation {
+  id           String     @id @default(uuid())
+  customerName String
+  customerPhone String
+  customerEmail String
+  numberOfPeople Int
+  reservationTime DateTime
+  status       ReservationStatus @default(PENDING)
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id])
+  restaurantId String?
+  branch       Branch? @relation(fields: [branchId], references: [id])
+  branchId     String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model MenuItem {
+  id           String     @id @default(uuid())
+  name         String
+  description  String?
+  price        Float
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
