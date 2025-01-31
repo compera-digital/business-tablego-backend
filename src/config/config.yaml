@@ -5,6 +5,9 @@ app:
   host: "localhost"
   apiPrefix: "/api/v1"
 
+env:
+  host: "development"
+
 cors:
   allowedOrigins:
     - "http://localhost:3000"
