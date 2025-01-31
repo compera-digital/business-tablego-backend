@@ -7,6 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  password    String  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  restaurants UserRestaurantRole[]
+}
+
 model Restaurant {
   id          String      @id @default(uuid())
   name        String
@@ -17,34 +28,12 @@ model Restaurant {
   phone       String?
   email       String @unique
   website     String?
-  owner       String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  branches     Branch[]
-  openingHours OpeningHours[]
-  reservations Reservation[]
-  menu         MenuItem[]
-}
-
-model Branch {
-  id           String      @id @default(uuid())
-  name         String
-  address      String
-  phone        String?
-  email        String @unique
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  restaurantId String
-  reservations Reservation[]
-}
-
-model OpeningHours {
-  id           String     @id @default(uuid())
-  dayOfWeek    String
-  openTime     String
-  closeTime    String
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  restaurantId String
+  users         UserRestaurantRole[]
+  reservations  Reservation[]
+  menu          MenuItem[]
 }
 
 model Reservation {
@@ -55,10 +44,8 @@ model Reservation {
   numberOfPeople Int
   reservationTime DateTime
   status       ReservationStatus @default(PENDING)
-  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id])
-  restaurantId String?
-  branch       Branch? @relation(fields: [branchId], references: [id])
-  branchId     String?
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -73,9 +60,46 @@ model MenuItem {
   restaurantId String
 }
 
+
 enum ReservationStatus {
   PENDING
   CONFIRMED
   CANCELLED
   COMPLETED
 }
+
+model UserRestaurantRole {
+  id           String      @id @default(uuid())
+  userId       String
+  restaurantId String
+  role         UserRole   
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user        User       @relation(fields: [userId], references: [id])
+  restaurant  Restaurant @relation(fields: [restaurantId], references: [id])
+}
+
+// Yeni model: Her rolün varsayılan yetkilerini tutar
+model RoleDefaultPermissions {
+  id          String      @id @default(uuid())
+  role        UserRole    @unique
+  permissions Permission[]
+}
+
+enum UserRole {
+  OWNER       // Tüm yetkilere sahip
+  MANAGER     // Sınırlı yetkili yönetici
+  STAFF       // Normal personel
+}
+
+enum Permission {
+  MANAGE_RESTAURANT     // Restoran bilgilerini düzenleme
+  MANAGE_STAFF         // Personel yönetimi
+  MANAGE_MENU          // Menü düzenleme
+  MANAGE_RESERVATIONS  // Rezervasyon yönetimi
+  VIEW_REPORTS         // Raporları görüntüleme
+  BASIC_OPERATIONS     // Temel işlemler (rezervasyon görüntüleme gibi)
+}
+
+
