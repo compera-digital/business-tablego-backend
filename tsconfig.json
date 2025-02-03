@@ -1,12 +1,17 @@
 {
-    "compilerOptions": {
-      "module": "NodeNext",
-      "moduleResolution": "NodeNext",
-      "target": "ESNext",
-      "outDir": "./dist",
-      "rootDir": "./",
-      "esModuleInterop": true,
-      "strict": true
-    }
-  }
-  
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ESNext",
+    "outDir": "./dist",
+    "baseUrl": "src",
+    "rootDir": "./",
+    "paths": {
+      "@/*": ["*"]
+    },
+    "esModuleInterop": true,
+    "strict": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

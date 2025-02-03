@@ -23,7 +23,7 @@ interface Config {
 }
 
 // ✅ config.yaml dosyasını oku
-const file = fs.readFileSync("config.yaml", "utf8");
+const file = fs.readFileSync("./src/config/config.yaml", "utf8");
 const config: Config = yaml.parse(file);
 
 export default config;

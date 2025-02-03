@@ -30,7 +30,7 @@ export class DbConnect {
       await this.prisma.$connect();
       this.logger.info('✅ PostgreSQL bağlantısı başarılı');
     } catch (error) {
-      this.logger.error('❌ Veritabanı bağlantısı başarısız:', error);
+      this.logger.error('❌ Veritabanı bağlantısı başarısız:', error as Error);
       throw error;
     }
   }
@@ -40,7 +40,7 @@ export class DbConnect {
       await this.prisma.$disconnect();
       this.logger.info('PostgreSQL bağlantısı başarıyla kapatıldı');
     } catch (error) {
-      this.logger.error('PostgreSQL bağlantısı kapatılırken hata oluştu:', error);
+      this.logger.error('PostgreSQL bağlantısı kapatılırken hata oluştu:', error as Error);
       throw error;
     }
   }

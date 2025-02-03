@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { IRegisterService, ILoginService, ILogger } from "../../services";
-import { IResponseHandler } from "../../utils";
+import { IRegisterService, ILoginService } from "@/services";
+import { IResponseHandler, ILogger } from "@/utils";
 
 export interface IAuthController {
   register(req: Request, res: Response): Promise<void>;
