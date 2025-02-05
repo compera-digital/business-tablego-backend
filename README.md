@@ -161,7 +161,7 @@ Response:
 ## 📦 Project Structure
 ```
 src/
-├── config/           # Configuration files
+├── config/          # Configuration files
 ├── core/            # Core infrastructure
 ├── routes/          # API endpoints
 ├── services/        # Business logic
