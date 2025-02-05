@@ -12,11 +12,11 @@ export class Helper implements IHelper {
     return bcrypt.compare(password, hash);
   }
 
-  public generateVerificationCode(): string {
+  public async generateVerificationCode(): Promise<string> {
     const verificationCode = crypto
       .randomBytes(3)
       .toString("hex")
-      .toUpperCase();
+      .toUpperCase(); 
     return verificationCode;
   }
 

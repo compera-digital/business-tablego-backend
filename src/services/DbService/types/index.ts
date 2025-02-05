@@ -24,4 +24,6 @@ export interface IDbService {
   registerUser(userData: RegisterUserDTO): Promise<ResgisterdUserDto>;
 
   findUserByEmail(email: string): Promise<User | null>;
+
+  updateUserVerification(email: string, isVerified: boolean): Promise<User>;
 }

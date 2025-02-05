@@ -71,6 +71,10 @@ export class ResponseHandler implements IResponseHandler {
     return { success: false, status: 400, message: "Invalid verification code." };
   }
 
+  verificationCodeNotExpired(email: string, remainingTime: number) {
+    return { success: false, status: 400, message: "Verification code not expired. Please check your email for the code.", data: { email, remainingTime } };
+  }
+
   userExists() {
     return { success: false, status: 400, message: "Account already exists." };
   }

@@ -1,18 +1,20 @@
 import { IMailService } from "@/services/MailService/types";
-import { ILogger } from "@/utils/Logger";
 import { IRedisClient } from "@/core/infrastructure/redis/types";
-import { IHelper } from "@/utils/Helper/types";
+import { ILogger, IHelper, IResponseHandler } from "@/utils";
+import { IDbService } from "@/services/DbService/types";
 
 export interface IVerificationService {
   generateCode(email: string): Promise<string>;
-  verifyCode(email: string, code: string): Promise<boolean>;
-  resendCode(email: string): Promise<boolean>;
+  verifyCode(email: string, code: string): Promise<any>;
+  resendCode(email: string): Promise<any>;
 }
 
 export interface IVerificationServiceDependencies {
   mailService: IMailService;
   redisClient: IRedisClient;
+  dbService: IDbService;
   helper: IHelper;
-  codeExpirationTime: number;
   logger: ILogger;
+  responseHandler: IResponseHandler;
+  codeExpirationTime: number;
 } 

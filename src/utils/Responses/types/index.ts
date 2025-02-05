@@ -68,6 +68,13 @@ export interface IResponseHandler {
       status: number;
       message: string;
     };
+
+    verificationCodeNotExpired(email: string, remainingTime: number): {
+      success: boolean;
+      status: number;
+      message: string;
+      data: { email: string; remainingTime: number };
+    };
   
     userExists(): {
       success: boolean;

@@ -3,20 +3,17 @@ import { IRegisterService, IRegisterServiceDependencies } from "./types";
 
 export class RegisterService implements IRegisterService {
   private readonly dbService;
-  private readonly redisClient;
-  private readonly mailService;
+  private readonly verificationService;
   private readonly responseHandler;
-  private readonly helper;
   private readonly logger;
-  private readonly codeExpirationTime;
-  constructor({ dbService, redisClient, mailService, responseHandler, helper, logger, codeExpirationTime }: IRegisterServiceDependencies) {
+  private readonly redisClient;
+
+  constructor({ dbService, verificationService, redisClient, responseHandler, logger }: IRegisterServiceDependencies) {
     this.dbService = dbService;
-    this.redisClient = redisClient;
-    this.mailService = mailService;
     this.responseHandler = responseHandler;
-    this.helper = helper;
+    this.verificationService = verificationService;
+    this.redisClient = redisClient;
     this.logger = logger;
-    this.codeExpirationTime = codeExpirationTime;
   }
 
   async register(name: string, lastName: string, email: string, referralCode: string, password: string) {
@@ -27,6 +24,10 @@ export class RegisterService implements IRegisterService {
         if (!existingUser.isVerified) {
           this.logger.warn(`Registration pending: User ${email} needs to verify their account`);
           const remainingTime = await this.redisClient.ttl(`verification:${email}`);
+          if (remainingTime <= 0) {
+            await this.verificationService.generateCode(email);
+            return this.responseHandler.registrationSuccess(existingUser.name, existingUser.lastName, existingUser.email);
+          }
           return this.responseHandler.userNotVerified(existingUser.email, remainingTime);
         } else {
           this.logger.warn(`Registration rejected: Email ${email} is already registered`);
@@ -45,9 +46,7 @@ export class RegisterService implements IRegisterService {
         isVerified: false,
       });
 
-      const verificationCode = await this.helper.generateVerificationCode();
-      await this.mailService.sendVerificationEmail(email, verificationCode);
-      await this.redisClient.setEx(`verification:${email}`, 300, verificationCode);
+      await this.verificationService.generateCode(email);
 
       this.logger.info(`User registration successful: Verification email sent to ${email}`);
       return this.responseHandler.registrationSuccess(user.name, user.lastName, user.email);

@@ -86,14 +86,22 @@ export class App {
       logger: new Logger("MailService"),
     });
 
+    this.verificationService = new VerificationService({
+      mailService: this.mailService,
+      redisClient: this.redisClient,
+      helper: this.helper,
+      logger: new Logger("VerificationService"),
+      codeExpirationTime: this.codeExpirationTime,
+      dbService: this.dbService,
+      responseHandler: this.responseHandler,
+    });
+
     this.registerService = new RegisterService({
       dbService: this.dbService,
       redisClient: this.redisClient,
-      mailService: this.mailService,
       responseHandler: this.responseHandler,
-      helper: this.helper,
+      verificationService: this.verificationService,
       logger: new Logger("RegisterService"),
-      codeExpirationTime: this.codeExpirationTime,
     });
 
     this.loginService = new LoginService({
@@ -102,18 +110,13 @@ export class App {
       responseHandler: this.responseHandler,
     });
 
-    this.verificationService = new VerificationService({
-      mailService: this.mailService,
-      redisClient: this.redisClient,
-      helper: this.helper,
-      logger: new Logger("VerificationService"),
-      codeExpirationTime: this.codeExpirationTime,
-    });
+
     this.authController = new AuthController({
       registerService: this.registerService,
       loginService: this.loginService,
       responseHandler: this.responseHandler,
       logger: new Logger("AuthController"),
+      verificationService: this.verificationService,
     });
 
     this.configureMiddleware();
