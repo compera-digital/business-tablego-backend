@@ -7,17 +7,25 @@ export class RegisterService implements IRegisterService {
   private readonly responseHandler;
   private readonly logger;
   private readonly redisClient;
+  private readonly helper;
 
-  constructor({ dbService, verificationService, redisClient, responseHandler, logger }: IRegisterServiceDependencies) {
+  constructor({ dbService, verificationService, redisClient, responseHandler, logger, helper }: IRegisterServiceDependencies) {
     this.dbService = dbService;
     this.responseHandler = responseHandler;
     this.verificationService = verificationService;
     this.redisClient = redisClient;
     this.logger = logger;
+    this.helper = helper;
   }
 
   async register(name: string, lastName: string, email: string, referralCode: string, password: string) {
     try {
+
+      if (!this.helper.validateEmail(email)) {
+        this.logger.warn(`Invalid email: ${email}`);
+        return this.responseHandler.invalidEmail(); 
+      }
+
       const existingUser = await this.dbService.findUserByEmail(email);
 
       if (existingUser) {

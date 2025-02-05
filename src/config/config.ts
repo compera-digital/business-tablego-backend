@@ -12,6 +12,12 @@ interface Config {
   env: {
     host: string;
   };
+  auth: {
+    jwt: {
+      expiresIn: string;
+      cookieMaxAge: number;
+    };
+  };
   cors: {
     allowedOrigins: string[];
     allowedMethods: string[];

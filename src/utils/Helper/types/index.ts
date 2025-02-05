@@ -6,3 +6,16 @@ export interface IHelper {
   validateEmail(email: string): boolean;
   formatDate(date: Date): string;
 } 
+
+export interface IUser {
+  email: string;
+  name: string;
+  lastName: string;
+}
+
+export interface IHelperDependencies {
+  jwtConfig: {
+    jwtToken: string;
+    jwtExpiresIn: string;
+  };
+}

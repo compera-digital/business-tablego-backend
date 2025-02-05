@@ -7,13 +7,15 @@
     private readonly registerService;
     private readonly loginService;
     private readonly verificationService;
+    private readonly cookieMaxAge;
 
-    constructor({ registerService, loginService, responseHandler, logger, verificationService }: IAuthControllerDependencies) {
+    constructor({ registerService, loginService, responseHandler, logger, verificationService, cookieMaxAge }: IAuthControllerDependencies) {
       this.registerService = registerService;
       this.loginService = loginService;
       this.responseHandler = responseHandler;
       this.logger = logger;
       this.verificationService = verificationService;
+      this.cookieMaxAge = cookieMaxAge;
     }
 
     async register(req: Request, res: Response) {
@@ -27,12 +29,18 @@
       }
     }
     
-
     async login(req: Request, res: Response) {
       const { email, password } = req.body;
       try {
         const response = await this.loginService.login(email, password);
-        res.status(response.status).json(response);
+        if (response.success && response.token) {
+          res.cookie('accessToken', response.token, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000
+          });
+        }
+        const { token, ...responseData } = response;
+        res.status(responseData.status).json(responseData);
       } catch (error) {
         this.logger.error(`Login attempt failed for user ${email}: ${(error as Error).message}`);
         res.status(500).json(this.responseHandler.unexpectedError("authentication"));

@@ -5,11 +5,13 @@ export class LoginService implements ILoginService {
   private readonly dbService;
   private readonly logger;
   private readonly responseHandler;
-  
-  constructor({ dbService, logger, responseHandler }: ILoginServiceDependencies) { 
+  private readonly helper;
+
+  constructor({ dbService, logger, responseHandler, helper }: ILoginServiceDependencies) { 
     this.dbService = dbService;
     this.logger = logger;
     this.responseHandler = responseHandler;
+    this.helper = helper;
   }
 
   async login(email: string, password: string) {
@@ -31,10 +33,13 @@ export class LoginService implements ILoginService {
 
       const { password: _, ...userWithoutPassword } = user;
 
+      console.log(userWithoutPassword, "userWithoutPassword");
+
+      const token = this.helper.generateToken(userWithoutPassword);
+
       return this.responseHandler.loginSuccess(
-        userWithoutPassword.id,
-        userWithoutPassword.email,
-        "dummy-token" 
+        userWithoutPassword,
+        token
       );
 
     } catch (error) {

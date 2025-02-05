@@ -6,11 +6,18 @@ export interface IResponseHandler {
       user: { name: string; lastName: string; email: string };
     };
   
-    loginSuccess(userId: string, email: string, token: string): {
+    loginSuccess( user: { name: string; lastName: string; email: string }, token: string ): {
       success: boolean;
       status: number;
       message: string;
-      user: { userId: string; email: string; token: string };
+      user: { name: string; lastName: string; email: string };
+      token: string;
+    };  
+
+    invalidEmail(): {
+      success: boolean;
+      status: number;
+      message: string;
     };
   
     error(message: string, status?: number): {
@@ -117,5 +124,6 @@ export interface IResponseHandler {
       status: number;
       message: string;
     };
+    
   }
   

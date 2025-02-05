@@ -11,7 +11,6 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    // Token blacklist kontrolü
     const logoutService = new LogoutService({ logger: new Logger('AuthMiddleware') });
     const isBlacklisted = await logoutService.isTokenBlacklisted(token);
 

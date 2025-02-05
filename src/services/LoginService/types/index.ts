@@ -1,4 +1,4 @@
-import { ILogger, IResponseHandler } from "@/utils";
+import { ILogger, IResponseHandler, IHelper } from "@/utils";
 import { IDbService } from "@/services";
 
 export interface ILoginService {
@@ -9,4 +9,5 @@ export interface ILoginService {
     dbService: IDbService;
     logger: ILogger;
     responseHandler: IResponseHandler;
+    helper: IHelper;
   }

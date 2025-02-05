@@ -11,17 +11,22 @@ export class ResponseHandler implements IResponseHandler {
     };
   }
 
-  loginSuccess(userId: string, email: string, token: string) {
+  loginSuccess(user: { name: string; lastName: string; email: string }, token: string) {
     return {
       success: true,
       status: 200,
       message: "Logged in successfully.",
-      user: { userId, email, token }
+      user: { name: user.name, lastName: user.lastName, email: user.email },
+      token
     };
   }
 
   error(message: string, status = 400) {
     return { success: false, status, message };
+  }
+
+  invalidEmail() {
+    return { success: false, status: 400, message: "Invalid email format." };
   }
 
   unexpectedError(operation: string) {

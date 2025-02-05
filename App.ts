@@ -50,6 +50,13 @@ export class App {
     port: number 
   };
 
+  private jwtConfig: {
+    jwtToken: string;
+    jwtExpiresIn: string;
+  };
+
+  private cookieMaxAge: number;
+
   constructor() {
     this.port = yamlConfig.app.port;
     this.app = express();
@@ -63,9 +70,16 @@ export class App {
       port: yamlConfig.mail.smtp.port,
     }
 
+    this.jwtConfig = {
+      jwtToken: process.env.JWT_SECRET!,
+      jwtExpiresIn: yamlConfig.auth.jwt.expiresIn,
+    }
+
+    this.cookieMaxAge = yamlConfig.auth.jwt.cookieMaxAge
+
     this.logger = new Logger("App");
     this.responseHandler = new ResponseHandler();
-    this.helper = new Helper();
+    this.helper = new Helper({ jwtConfig: this.jwtConfig });
     
     this.dbService = new DbService();
     this.dbConnect = DbConnect.getInstance({
@@ -102,14 +116,15 @@ export class App {
       responseHandler: this.responseHandler,
       verificationService: this.verificationService,
       logger: new Logger("RegisterService"),
+      helper: this.helper,
     });
 
     this.loginService = new LoginService({
       dbService: this.dbService,
       logger: new Logger("LoginService"),
       responseHandler: this.responseHandler,
+      helper: this.helper,
     });
-
 
     this.authController = new AuthController({
       registerService: this.registerService,
@@ -117,6 +132,7 @@ export class App {
       responseHandler: this.responseHandler,
       logger: new Logger("AuthController"),
       verificationService: this.verificationService,
+      cookieMaxAge: this.cookieMaxAge,
     });
 
     this.configureMiddleware();
