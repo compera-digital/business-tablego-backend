@@ -1,34 +1,59 @@
 import bcrypt from "bcrypt";
 import { IRegisterService, IRegisterServiceDependencies } from "./types";
+
 export class RegisterService implements IRegisterService {
   private readonly dbService;
-  private readonly logger;
+  private readonly redisClient;
+  private readonly mailService;
   private readonly responseHandler;
-
-  constructor({ dbService, logger, responseHandler }: IRegisterServiceDependencies) {
+  private readonly helper;
+  private readonly logger;
+  private readonly codeExpirationTime;
+  constructor({ dbService, redisClient, mailService, responseHandler, helper, logger, codeExpirationTime }: IRegisterServiceDependencies) {
     this.dbService = dbService;
-    this.logger = logger;
+    this.redisClient = redisClient;
+    this.mailService = mailService;
     this.responseHandler = responseHandler;
+    this.helper = helper;
+    this.logger = logger;
+    this.codeExpirationTime = codeExpirationTime;
   }
 
-  async register(name: string, email: string, password: string) {
+  async register(name: string, lastName: string, email: string, referralCode: string, password: string) {
     try {
-
       const existingUser = await this.dbService.findUserByEmail(email);
+
       if (existingUser) {
-        this.logger.warn("Registration failed: Email already in use", { email });
-        return this.responseHandler.emailInUse();
+        if (!existingUser.isVerified) {
+          this.logger.warn(`Registration pending: User ${email} needs to verify their account`);
+          const remainingTime = await this.redisClient.ttl(`verification:${email}`);
+          return this.responseHandler.userNotVerified(existingUser.email, remainingTime);
+        } else {
+          this.logger.warn(`Registration rejected: Email ${email} is already registered`);
+          return this.responseHandler.emailInUse();
+        }
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const user = await this.dbService.registerUser({ name, email, password: hashedPassword });
+      const user = await this.dbService.registerUser({
+        name,
+        lastName,
+        email,
+        referralCode,
+        password: hashedPassword,
+        isVerified: false,
+      });
 
-      this.logger.info("New user registered successfully", { email });
+      const verificationCode = await this.helper.generateVerificationCode();
+      await this.mailService.sendVerificationEmail(email, verificationCode);
+      await this.redisClient.setEx(`verification:${email}`, 300, verificationCode);
 
-      return this.responseHandler.registrationSuccess(user.id, user.email);
+      this.logger.info(`User registration successful: Verification email sent to ${email}`);
+      return this.responseHandler.registrationSuccess(user.name, user.lastName, user.email);
+
     } catch (error) {
-      this.logger.error("Error occurred during registration", error as Error);
+      this.logger.error(`Registration failed: ${(error as Error).message}`, error as Error);
       return this.responseHandler.unexpectedError("registration");
     }
   }

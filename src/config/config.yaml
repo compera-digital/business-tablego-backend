@@ -1,5 +1,5 @@
 app:
-  name: "Restaurant Booking API"
+  name: "TableGo API"
   environment: "development"
   port: 3000
   host: "localhost"
@@ -7,6 +7,14 @@ app:
 
 env:
   host: "development"
+
+verification:
+  codeExpirationTime: 300
+
+mail:
+  smtp:
+    server: "smtp.gmail.com"
+    port: 465
 
 cors:
   allowedOrigins:

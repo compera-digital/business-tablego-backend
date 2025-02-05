@@ -1,12 +1,13 @@
 import type { IResponseHandler } from "./types";
 
 export class ResponseHandler implements IResponseHandler {
-  registrationSuccess(userId: string, email: string) {
+
+  registrationSuccess(name: string, lastName: string, email: string) {
     return {
       success: true,
       status: 201,
-      message: "Registration successful. Please verify your email.",
-      user: { userId, email }
+      message: "Registration successful! Please check your email for verification.",
+      user: { name, lastName, email }
     };
   }
 
@@ -23,11 +24,12 @@ export class ResponseHandler implements IResponseHandler {
     return { success: false, status, message };
   }
 
-  unexpectedError(action: string) {
+  unexpectedError(operation: string) {
     return {
       success: false,
       status: 500,
-      message: `An unexpected error occurred during ${action}. Please try again later.`,
+      message: `An unexpected error occurred during ${operation}. Please try again later.`,
+      error: "INTERNAL_SERVER_ERROR"
     };
   }
 
@@ -51,8 +53,13 @@ export class ResponseHandler implements IResponseHandler {
     return {
       success: false,
       status: 400,
-      message: "User is not verified.",
-      user: { email, remainingTime: remainingTime > 0 ? remainingTime : 0 }
+      message: "Account pending verification. Please check your email.",
+      data: {
+        email,
+        remainingTime,
+        nextResendAllowed: `${Math.floor(remainingTime / 60)} minutes`
+      },
+      error: "VERIFICATION_PENDING"
     };
   }
 
@@ -69,7 +76,12 @@ export class ResponseHandler implements IResponseHandler {
   }
 
   emailInUse() {
-    return { success: false, status: 400, message: "Email already in use by another account." };
+    return {
+      success: false,
+      status: 400,
+      message: "This email address is already registered.",
+      error: "EMAIL_IN_USE"
+    };
   }
 
   emailRegisteredNotVerified() {

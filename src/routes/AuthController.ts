@@ -15,12 +15,12 @@
     }
 
     async register(req: Request, res: Response) {
-      const { name, email, password } = req.body;
+      const { name, lastName, email, referralCode, password } = req.body;
       try {
-        const user = await this.registerService.register(name, email, password);
-        res.status(201).json(this.responseHandler.registrationSuccess(user.id, user.email));
+        const response = await this.registerService.register(name, lastName, email, referralCode, password);
+        res.status(response.status).json(response);
       } catch (error) {
-        this.logger.error("Registration failed", error as Error);
+        this.logger.error(`Registration request failed: ${(error as Error).message}`);
         res.status(400).json(this.responseHandler.error((error as Error).message || "Registration process failed"));
       }
     }
@@ -30,11 +30,10 @@
       const { email, password } = req.body;
       try {
         const response = await this.loginService.login(email, password);
-
         res.status(response.status).json(response);
       } catch (error) {
-        this.logger.error("Login failed", error as Error);
-        res.status(500).json(this.responseHandler.unexpectedError("login"));
+        this.logger.error(`Login attempt failed for user ${email}: ${(error as Error).message}`);
+        res.status(500).json(this.responseHandler.unexpectedError("authentication"));
       }
     }
   }

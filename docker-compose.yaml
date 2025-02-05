@@ -1,19 +1,47 @@
 version: '3.8'
 
 services:
-  postgres_db:
+  postgres:
+    container_name: tablego_postgres
     image: postgres:latest
-    restart: always
-    container_name: restaurants
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tablego_network
+
+  redis:
+    container_name: tablego_redis
+    image: redis:latest
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - tablego_network
+
+  redis-insight:
+    container_name: tablego_redis_insight
+    image: redislabs/redisinsight:latest
+    network_mode: "host"
+    ports:
+      - "8001:8001"
+    volumes:
+      - redis_insight_data:/db
+
 
 volumes:
   postgres_data:
+  redis_data:
+  redis_insight_data:
+
+networks:
+  tablego_network:
+    driver: bridge
 

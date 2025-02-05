@@ -20,9 +20,18 @@ interface Config {
     windowMs: number;
     maxRequests: number;
   };
+  verification: {
+    codeExpirationTime: number;
+  };
+  
+  mail: {
+    smtp: {
+      server: string;
+      port: number;
+    };
+  };
 }
 
-// ✅ config.yaml dosyasını oku
 const file = fs.readFileSync("./src/config/config.yaml", "utf8");
 const config: Config = yaml.parse(file);
 

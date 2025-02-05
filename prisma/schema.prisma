@@ -8,12 +8,15 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  name        String
-  email       String   @unique
-  password    String  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  name         String
+  lastName     String
+  email        String   @unique
+  referralCode String?  
+  password     String  
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   restaurants UserRestaurantRole[]
 }
@@ -80,7 +83,7 @@ model UserRestaurantRole {
   restaurant  Restaurant @relation(fields: [restaurantId], references: [id])
 }
 
-// Yeni model: Her rolün varsayılan yetkilerini tutar
+// New model: Stores default permissions for each role
 model RoleDefaultPermissions {
   id          String      @id @default(uuid())
   role        UserRole    @unique
@@ -88,18 +91,18 @@ model RoleDefaultPermissions {
 }
 
 enum UserRole {
-  OWNER       // Tüm yetkilere sahip
-  MANAGER     // Sınırlı yetkili yönetici
-  STAFF       // Normal personel
+  OWNER       // Has all permissions
+  MANAGER     // Manager with limited permissions
+  STAFF       // Regular staff
 }
 
 enum Permission {
-  MANAGE_RESTAURANT     // Restoran bilgilerini düzenleme
-  MANAGE_STAFF         // Personel yönetimi
-  MANAGE_MENU          // Menü düzenleme
-  MANAGE_RESERVATIONS  // Rezervasyon yönetimi
-  VIEW_REPORTS         // Raporları görüntüleme
-  BASIC_OPERATIONS     // Temel işlemler (rezervasyon görüntüleme gibi)
+  MANAGE_RESTAURANT     // Edit restaurant information
+  MANAGE_STAFF         // Staff management
+  MANAGE_MENU          // Menu management
+  MANAGE_RESERVATIONS  // Reservation management
+  VIEW_REPORTS         // View reports
+  BASIC_OPERATIONS     // Basic operations (like viewing reservations)
 }
 
 

@@ -1,9 +1,9 @@
 export interface IResponseHandler {
-    registrationSuccess(userId: string, email: string): {
+    registrationSuccess(name: string, lastName: string, email: string): {
       success: boolean;
       status: number;
       message: string;
-      user: { userId: string; email: string };
+      user: { name: string; lastName: string; email: string };
     };
   
     loginSuccess(userId: string, email: string, token: string): {
@@ -53,7 +53,8 @@ export interface IResponseHandler {
       success: boolean;
       status: number;
       message: string;
-      user: { email: string; remainingTime: number };
+      data: { email: string; remainingTime: number, nextResendAllowed: string };
+      error: string;
     };
   
     verificationCodeExpired(): {
