@@ -1,5 +1,5 @@
 import { IDbService } from "@/services";
-import { ILogger, IResponseHandler } from "@/utils";
+import { ILogger, IResponseHandler, IHelper } from "@/utils";
 import { IVerificationService } from "@/services/types";
 import { IRedisClient } from "@/core/infrastructure";
 
@@ -13,5 +13,6 @@ export interface IRegisterServiceDependencies {
   dbService: IDbService;
   logger: ILogger;
   redisClient: IRedisClient;
+  helper: IHelper;
 }
   

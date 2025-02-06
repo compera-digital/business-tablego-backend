@@ -15,4 +15,5 @@ export interface IAuthControllerDependencies {
   responseHandler: IResponseHandler;
   logger: ILogger;
   verificationService: IVerificationService;
+  cookieMaxAge: number;
 }

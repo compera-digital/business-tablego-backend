@@ -64,9 +64,24 @@ export class VerificationService implements IVerificationService {
 
       await this.dbService.updateUserVerification(email, true);
       await this.redisClient.getClient().del(`verification:${email}`);
-      
-      this.logger.info("User verified successfully", { email });
-      return this.responseHandler.verificationSuccess();    
+
+      const updatedUser = await this.dbService.findUserByEmail(email);
+
+      if (!updatedUser) {
+        this.logger.info("User not found during verification", { email });
+        return this.responseHandler.userNotFound();
+      }
+
+      const { password: _, ...userWithoutPassword } = updatedUser;
+
+      console.log(userWithoutPassword, "userWithoutPassword");
+
+      const token = this.helper.generateToken(userWithoutPassword);
+      return this.responseHandler.verificationSuccess(
+        userWithoutPassword,
+        token
+      );
+
     } catch (error) {
       this.logger.error("Error verifying code", error as Error);
       throw error;

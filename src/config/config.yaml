@@ -11,6 +11,11 @@ env:
 verification:
   codeExpirationTime: 300
 
+auth:
+  jwt:
+    expiresIn: "7d"  # 7 days
+    cookieMaxAge: 604800000  # 7 days 
+
 mail:
   smtp:
     server: "smtp.gmail.com"

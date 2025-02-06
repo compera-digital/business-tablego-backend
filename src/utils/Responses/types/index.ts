@@ -1,3 +1,5 @@
+import { ILoginResponseDto, IVerificationResponseDto } from "@/core/types";
+
 export interface IResponseHandler {
     registrationSuccess(name: string, lastName: string, email: string): {
       success: boolean;
@@ -6,11 +8,18 @@ export interface IResponseHandler {
       user: { name: string; lastName: string; email: string };
     };
   
-    loginSuccess(userId: string, email: string, token: string): {
+    loginSuccess( user: ILoginResponseDto, token: string ): {
       success: boolean;
       status: number;
       message: string;
-      user: { userId: string; email: string; token: string };
+      user: ILoginResponseDto;
+      token: string;
+    };  
+
+    invalidEmailFormat(): {
+      success: boolean;
+      status: number;
+      message: string;
     };
   
     error(message: string, status?: number): {
@@ -36,6 +45,12 @@ export interface IResponseHandler {
       status: number;
       message: string;
     };
+
+    invalidEmailOrPassword(): {
+      success: boolean;
+      status: number;
+      message: string;
+    };
   
     sameEmailProvided(): {
       success: boolean;
@@ -49,11 +64,11 @@ export interface IResponseHandler {
       message: string;
     };
   
-    userNotVerified(email: string, remainingTime: number): {
+    userNotVerified(email: string, isVerified: boolean, remainingTime: number): {
       success: boolean;
       status: number;
       message: string;
-      data: { email: string; remainingTime: number, nextResendAllowed: string };
+      data: { email: string; isVerified: boolean; remainingTime: number };
       error: string;
     };
   
@@ -74,12 +89,6 @@ export interface IResponseHandler {
       status: number;
       message: string;
       data: { email: string; remainingTime: number };
-    };
-  
-    userExists(): {
-      success: boolean;
-      status: number;
-      message: string;
     };
   
     emailInUse(): {
@@ -106,10 +115,12 @@ export interface IResponseHandler {
       message: string;
     };
   
-    verificationSuccess(): {
+    verificationSuccess(user: IVerificationResponseDto, token: string): {
       success: boolean;
       status: number;
       message: string;
+      user: IVerificationResponseDto;
+      token: string;
     };
   
     newVerificationCodeSent(): {
@@ -117,5 +128,8 @@ export interface IResponseHandler {
       status: number;
       message: string;
     };
+    
   }
+
+
   

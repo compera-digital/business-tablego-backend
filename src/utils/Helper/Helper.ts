@@ -1,9 +1,17 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import crypto from "crypto";
-import { IHelper } from './types';
+import { IHelper, IHelperDependencies, IUser } from './types';
 
 export class Helper implements IHelper {
+  private readonly jwtToken;
+  private readonly jwtExpiresIn;
+
+  constructor({ jwtConfig }: IHelperDependencies) { 
+    this.jwtToken = jwtConfig.jwtToken;
+    this.jwtExpiresIn = jwtConfig.jwtExpiresIn;
+  }
+  
   public async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
   }
@@ -20,11 +28,16 @@ export class Helper implements IHelper {
     return verificationCode;
   }
 
-  public generateToken(user: any): string {
+  public generateToken(user: IUser): string {
+
+    const options: jwt.SignOptions = {
+      expiresIn: this.jwtExpiresIn  as SignOptions["expiresIn"]
+    };
+
     return jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.JWT_SECRET!,
-      { expiresIn: '24h' }
+      { id: user.id, email: user.email, name: user.name, lastName: user.lastName },
+      this.jwtToken,
+      options
     );
   }
 
@@ -37,6 +50,3 @@ export class Helper implements IHelper {
     return date.toISOString();
   }
 }
-
-// Singleton instance
-export const helper = new Helper(); 
