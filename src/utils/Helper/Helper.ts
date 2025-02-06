@@ -35,7 +35,7 @@ export class Helper implements IHelper {
     };
 
     return jwt.sign(
-      { email: user.email, name: user.name, lastName: user.lastName },
+      { id: user.id, email: user.email, name: user.name, lastName: user.lastName },
       this.jwtToken,
       options
     );

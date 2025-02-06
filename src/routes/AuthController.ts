@@ -36,7 +36,7 @@
         if (response.success && response.token) {
           res.cookie('accessToken', response.token, {
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000
+            maxAge: this.cookieMaxAge
           });
         }
         const { token, ...responseData } = response;
@@ -51,9 +51,18 @@
       const { email, code } = req.body;
       try {
         const response = await this.verificationService.verifyCode(email, code);
-        res.status(response.status).json(response);
-      }
-      catch (error) {
+        
+        if (response.success && response.token) {
+          res.cookie('accessToken', response.token, {
+            httpOnly: true,
+            maxAge: this.cookieMaxAge
+          });
+        }
+        
+        const { token, ...responseData } = response;
+        res.status(responseData.status).json(responseData);
+        
+      } catch (error) {
         this.logger.error(`Verification code verification failed for user ${email}: ${(error as Error).message}`);
         res.status(500).json(this.responseHandler.unexpectedError("verification code verification"));
       }

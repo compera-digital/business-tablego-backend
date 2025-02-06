@@ -3,12 +3,14 @@ import { ILoginService, ILoginServiceDependencies } from "./types";
 
 export class LoginService implements ILoginService {
   private readonly dbService;
+  private readonly redisClient;
   private readonly logger;
   private readonly responseHandler;
   private readonly helper;
 
-  constructor({ dbService, logger, responseHandler, helper }: ILoginServiceDependencies) { 
+  constructor({ dbService, redisClient, logger, responseHandler, helper }: ILoginServiceDependencies) { 
     this.dbService = dbService;
+    this.redisClient = redisClient;
     this.logger = logger;
     this.responseHandler = responseHandler;
     this.helper = helper;
@@ -20,18 +22,24 @@ export class LoginService implements ILoginService {
 
       if (!user) {
         this.logger.warn("Failed login attempt: Invalid email or password", { email });
-        return this.responseHandler.userNotFound(); 
+        return this.responseHandler.invalidEmailFormat(); 
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         this.logger.warn("Failed login attempt: Invalid email or password", { email });
-        return this.responseHandler.userNotFound(); 
+        return this.responseHandler.invalidEmailFormat(); 
+      }
+
+      if (!user.isVerified) {
+        const remainingTime = await this.redisClient.ttl(`verification:${email}`);
+        this.logger.warn("Login attempt failed: User not verified", { email });
+        return this.responseHandler.userNotVerified(user.email, user.isVerified, remainingTime);
       }
 
       this.logger.info("User logged in successfully", { email });
 
-      const { password: _, ...userWithoutPassword } = user;
+      const { password: _,  ...userWithoutPassword } = user;
 
       console.log(userWithoutPassword, "userWithoutPassword");
 

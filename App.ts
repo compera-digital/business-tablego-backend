@@ -123,6 +123,7 @@ export class App {
       dbService: this.dbService,
       logger: new Logger("LoginService"),
       responseHandler: this.responseHandler,
+      redisClient: this.redisClient,
       helper: this.helper,
     });
 

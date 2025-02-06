@@ -8,9 +8,14 @@ export interface IHelper {
 } 
 
 export interface IUser {
+  id: string;
   email: string;
   name: string;
   lastName: string;
+  isVerified: boolean;
+  referralCode: string | null;
+  createdAt: Date;
+  updatedAt: Date; 
 }
 
 export interface IHelperDependencies {

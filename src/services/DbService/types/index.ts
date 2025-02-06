@@ -1,22 +1,7 @@
 // src/services/DbService/types/index.ts
 
 import { User } from "@/core/types/models";
-
-
-export type RegisterUserDTO = {
-  name: string;
-  lastName: string; 
-  email: string;
-  referralCode: string;
-  password: string;
-  isVerified: boolean;
-}
-
-export type ResgisterdUserDto  = {
-  name: string;
-  lastName: string;
-  email: string;
-}
+import { RegisterUserDTO, ResgisterdUserDto } from "@/core/types/dto";
 
 
 export interface IDbService {
@@ -27,3 +12,5 @@ export interface IDbService {
 
   updateUserVerification(email: string, isVerified: boolean): Promise<User>;
 }
+
+

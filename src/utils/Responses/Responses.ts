@@ -1,4 +1,5 @@
 import type { IResponseHandler } from "./types";
+import { ILoginResponseDto, IVerificationResponseDto } from "@/core/types";
 
 export class ResponseHandler implements IResponseHandler {
 
@@ -11,12 +12,12 @@ export class ResponseHandler implements IResponseHandler {
     };
   }
 
-  loginSuccess(user: { name: string; lastName: string; email: string }, token: string) {
+  loginSuccess(user: ILoginResponseDto, token: string) {
     return {
       success: true,
       status: 200,
       message: "Logged in successfully.",
-      user: { name: user.name, lastName: user.lastName, email: user.email },
+      user: { name: user.name, lastName: user.lastName, email: user.email, isVerified: user.isVerified },
       token
     };
   }
@@ -25,7 +26,7 @@ export class ResponseHandler implements IResponseHandler {
     return { success: false, status, message };
   }
 
-  invalidEmail() {
+  invalidEmailFormat() {
     return { success: false, status: 400, message: "Invalid email format." };
   }
 
@@ -46,6 +47,10 @@ export class ResponseHandler implements IResponseHandler {
     return { success: false, status: 404, message: "User not found." };
   }
 
+  invalidEmailOrPassword() {
+    return { success: false, status: 400, message: "Invalid email or password." };
+  }
+
   sameEmailProvided() {
     return { success: false, status: 400, message: "This email is already registered but not verified." };
   }
@@ -54,15 +59,15 @@ export class ResponseHandler implements IResponseHandler {
     return { success: false, status: 400, message: "User is already verified." };
   }
 
-  userNotVerified(email: string, remainingTime: number) {
+  userNotVerified(email: string, isVerified: boolean, remainingTime: number) {
     return {
       success: false,
       status: 400,
       message: "Account pending verification. Please check your email.",
       data: {
         email,
+        isVerified,
         remainingTime,
-        nextResendAllowed: `${Math.floor(remainingTime / 60)} minutes`
       },
       error: "VERIFICATION_PENDING"
     };
@@ -80,15 +85,12 @@ export class ResponseHandler implements IResponseHandler {
     return { success: false, status: 400, message: "Verification code not expired. Please check your email for the code.", data: { email, remainingTime } };
   }
 
-  userExists() {
-    return { success: false, status: 400, message: "Account already exists." };
-  }
 
   emailInUse() {
     return {
       success: false,
       status: 400,
-      message: "This email address is already registered.",
+      message: "Account already exists. Please login.",
       error: "EMAIL_IN_USE"
     };
   }
@@ -105,8 +107,13 @@ export class ResponseHandler implements IResponseHandler {
     return { success: true, status: 200, message: "Logged out successfully." };
   }
 
-  verificationSuccess() {
-    return { success: true, status: 200, message: "Verification successful." };
+  verificationSuccess (user: IVerificationResponseDto, token: string) {
+    return { 
+      success: true, 
+      status: 200, message: "Verification successful.", 
+      user: { name: user.name, lastName: user.lastName, email: user.email, isVerified: user.isVerified },
+      token 
+    };
   }
 
   newVerificationCodeSent() {

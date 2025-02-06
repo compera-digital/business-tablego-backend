@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { IDbService, RegisterUserDTO } from "./types";
-
+import { IDbService } from "./types";
+import { RegisterUserDTO } from "@/core/types/dto";
 export class DbService implements IDbService {
   private prisma: PrismaClient;
 

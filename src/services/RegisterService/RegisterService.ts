@@ -23,24 +23,14 @@ export class RegisterService implements IRegisterService {
 
       if (!this.helper.validateEmail(email)) {
         this.logger.warn(`Invalid email: ${email}`);
-        return this.responseHandler.invalidEmail(); 
+        return this.responseHandler.invalidEmailFormat(); 
       }
 
       const existingUser = await this.dbService.findUserByEmail(email);
 
       if (existingUser) {
-        if (!existingUser.isVerified) {
-          this.logger.warn(`Registration pending: User ${email} needs to verify their account`);
-          const remainingTime = await this.redisClient.ttl(`verification:${email}`);
-          if (remainingTime <= 0) {
-            await this.verificationService.generateCode(email);
-            return this.responseHandler.registrationSuccess(existingUser.name, existingUser.lastName, existingUser.email);
-          }
-          return this.responseHandler.userNotVerified(existingUser.email, remainingTime);
-        } else {
           this.logger.warn(`Registration rejected: Email ${email} is already registered`);
           return this.responseHandler.emailInUse();
-        }
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
