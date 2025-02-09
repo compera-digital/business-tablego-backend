@@ -7,6 +7,9 @@ export interface IAuthController {
   login(req: Request, res: Response): Promise<void>;
   verifyCode(req: Request, res: Response): Promise<void>;
   resendCode(req: Request, res: Response): Promise<void>;
+  forgotPassword(req: Request, res: Response): Promise<void>;
+  verifyResetToken(req: Request, res: Response): Promise<void>;
+  resetPassword(req: Request, res: Response): Promise<void>;
 }
 
 export interface IAuthControllerDependencies {

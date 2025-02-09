@@ -11,6 +11,8 @@ export interface IDbService {
   findUserByEmail(email: string): Promise<User | null>;
 
   updateUserVerification(email: string, isVerified: boolean): Promise<User>;
+
+  updateUserPassword(email: string, newPassword: string): Promise<User>;
 }
 
 

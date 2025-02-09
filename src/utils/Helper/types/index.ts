@@ -2,10 +2,18 @@ export interface IHelper {
   hashPassword(password: string): Promise<string>;
   comparePassword(password: string, hash: string): Promise<boolean>;
   generateVerificationCode(): Promise<string>;
-  generateToken(user: any): string;
-  validateEmail(email: string): boolean;
-  formatDate(date: Date): string;
+  generatePasswordResetToken(user: any): Promise<string>;
+  generateToken(user: any): Promise<string>;
+  validateEmail(email: string): Promise<boolean>;
+  formatDate(date: Date): Promise<string>;
+  verifyPasswordResetToken(token: string): Promise<{ valid: boolean; email?: string }>;
 } 
+
+export interface PasswordResetTokenPayload {
+  type: string;
+  email: string;
+  id: string;
+}
 
 export interface IUser {
   id: string;
