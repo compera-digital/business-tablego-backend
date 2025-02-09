@@ -7,6 +7,9 @@ export interface IVerificationService {
   generateCode(email: string): Promise<string>;
   verifyCode(email: string, code: string): Promise<any>;
   resendCode(email: string): Promise<any>;
+  forgotPassword(email: string): Promise<any>;
+  verifyPasswordResetToken(token: string): Promise<any>;
+  resetPassword(token: string, newPassword: string): Promise<any>;
 }
 
 export interface IVerificationServiceDependencies {

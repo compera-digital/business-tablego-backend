@@ -22,4 +22,11 @@ export class DbService implements IDbService {
       data: { isVerified }
     });
   }
+
+  async updateUserPassword(email: string, newPassword: string) {
+    return this.prisma.user.update({
+      where: { email },
+      data: { password: newPassword }
+    });
+  }
 }

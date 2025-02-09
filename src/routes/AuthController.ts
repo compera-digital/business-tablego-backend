@@ -78,4 +78,37 @@
         res.status(500).json(this.responseHandler.unexpectedError("verification code resending"));
       }
     }
+
+    async forgotPassword(req: Request, res: Response) {
+      const { email } = req.body;
+      try {
+        const response = await this.verificationService.forgotPassword(email);
+        res.status(response.status).json(response);
+      } catch (error) {
+        this.logger.error(`Password reset link request failed: ${(error as Error).message}`);
+        res.status(500).json(this.responseHandler.unexpectedError("password reset"));
+      } 
+    }
+
+    async verifyResetToken(req: Request, res: Response) {
+      const { resetToken } = req.query;
+      try {
+        const response = await this.verificationService.verifyPasswordResetToken(resetToken as string);
+        res.status(response.status).json(response);
+      } catch (error) {
+        this.logger.error(`Token verification failed: ${(error as Error).message}`);
+        res.status(500).json(this.responseHandler.unexpectedError("token verification"));
+      }
+    }
+
+    async resetPassword(req: Request, res: Response) {
+      const { token, newPassword } = req.body;
+      try {
+        const response = await this.verificationService.resetPassword(token, newPassword);
+        res.status(response.status).json(response);
+      } catch (error) {
+        this.logger.error(`Password reset failed: ${(error as Error).message}`);
+        res.status(500).json(this.responseHandler.unexpectedError("password reset"));
+      }
+    }
   }

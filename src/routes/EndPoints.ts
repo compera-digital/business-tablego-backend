@@ -17,6 +17,9 @@ export class EndPoints {
     this.router.post("/auth/register", this.authController.register.bind(this.authController));
     this.router.post("/auth/verify-code", this.authController.verifyCode.bind(this.authController));
     this.router.post("/auth/resend-code", this.authController.resendCode.bind(this.authController));
+    this.router.post("/auth/forgot-password", this.authController.forgotPassword.bind(this.authController));
+    this.router.post("/auth/verify-reset-token", this.authController.verifyResetToken.bind(this.authController));
+    this.router.post("/auth/reset-password", this.authController.resetPassword.bind(this.authController));
   }
 
   public getRouter(): Router {

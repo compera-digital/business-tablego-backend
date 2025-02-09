@@ -43,7 +43,7 @@ export class LoginService implements ILoginService {
 
       console.log(userWithoutPassword, "userWithoutPassword");
 
-      const token = this.helper.generateToken(userWithoutPassword);
+      const token = await this.helper.generateToken(userWithoutPassword);
 
       return this.responseHandler.loginSuccess(
         userWithoutPassword,
