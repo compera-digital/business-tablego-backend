@@ -1,18 +1,20 @@
 // app.ts
 
 import express, { Express } from "express";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import yamlConfig from "./src/config/config";
 import { ResponseHandler, Logger, Helper } from "./src/utils";
 import { DbConnect } from "./src/core/infrastructure/database";
-import { EndPoints, AuthController } from "./src/routes";
+import { EndPoints, AuthController, UserController } from "./src/routes";
 import { 
   RegisterService, 
   LoginService, 
   DbService, 
   MailService, 
   VerificationService, 
+  UserService
 } from "./src/services";
 
 import { 
@@ -25,6 +27,7 @@ import {
 } from "./src/services/types";
 
 import { RedisClient } from "./src/core/infrastructure/redis";
+import { AuthMiddleware } from "./src/middleware/auth";
 
 dotenv.config({ path: ".env" });
 
@@ -56,6 +59,10 @@ export class App {
   };
 
   private cookieMaxAge: number;
+  private authMiddleware: AuthMiddleware;
+  private endpoints: EndPoints;
+  private userService: UserService;
+  private userController: UserController;
 
   constructor() {
     this.port = yamlConfig.app.port;
@@ -136,6 +143,31 @@ export class App {
       cookieMaxAge: this.cookieMaxAge,
     });
 
+    this.authMiddleware = new AuthMiddleware({
+      jwtToken: this.jwtConfig.jwtToken,
+      responseHandler: this.responseHandler,
+      logger: new Logger("AuthMiddleware"),
+    });
+
+    this.userService = new UserService({
+      dbService: this.dbService,
+      helper: this.helper,
+      responseHandler: this.responseHandler,
+      logger: new Logger("UserService")
+    });
+
+    this.userController = new UserController({
+      userService: this.userService,
+      responseHandler: this.responseHandler,
+      logger: new Logger("UserController")
+    });
+
+    this.endpoints = new EndPoints({
+      authController: this.authController,
+      userController: this.userController,
+      authMiddleware: this.authMiddleware
+    });
+
     this.configureMiddleware();
     this.configureRoutes();
   }
@@ -143,6 +175,7 @@ export class App {
   private configureMiddleware(): void {
     this.app.use(express.json());
     this.app.use(
+      cookieParser(),
       cors({
         origin: yamlConfig.cors.allowedOrigins,
         methods: yamlConfig.cors.allowedMethods,
@@ -152,8 +185,7 @@ export class App {
 
   private configureRoutes(): void {
     const apiPrefix = yamlConfig.app.apiPrefix;
-    const endpoints = new EndPoints(this.authController);
-    this.app.use(apiPrefix, endpoints.getRouter());
+    this.app.use(apiPrefix, this.endpoints.getRouter());
   }
 
   public async start(): Promise<void> {

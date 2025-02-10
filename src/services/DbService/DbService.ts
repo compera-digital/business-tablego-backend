@@ -16,6 +16,10 @@ export class DbService implements IDbService {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
+  async findUserById(id: string) {
+    return this.prisma.user.findUnique({ where: { id } });
+  }
+
   async updateUserVerification(email: string, isVerified: boolean) {
     return this.prisma.user.update({
       where: { email },
@@ -23,9 +27,16 @@ export class DbService implements IDbService {
     });
   }
 
-  async updateUserPassword(email: string, newPassword: string) {
+  async updateUserPasswordByEmail(email: string, newPassword: string) {
     return this.prisma.user.update({
       where: { email },
+      data: { password: newPassword }
+    });
+  }
+
+  async updateUserPasswordById(id: string, newPassword: string) {
+    return this.prisma.user.update({
+      where: { id },
       data: { password: newPassword }
     });
   }

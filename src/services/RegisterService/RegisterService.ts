@@ -20,21 +20,18 @@ export class RegisterService implements IRegisterService {
 
   async register(name: string, lastName: string, email: string, referralCode: string, password: string) {
     try {
-
       if (!this.helper.validateEmail(email)) {
         this.logger.warn(`Invalid email: ${email}`);
         return this.responseHandler.invalidEmailFormat(); 
       }
 
       const existingUser = await this.dbService.findUserByEmail(email);
-
       if (existingUser) {
-          this.logger.warn(`Registration rejected: Email ${email} is already registered`);
-          return this.responseHandler.emailInUse();
+        this.logger.warn(`Registration rejected: Email ${email} is already registered`);
+        return this.responseHandler.emailInUse();
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-
+      const hashedPassword = await this.helper.hashPassword(password);
       const user = await this.dbService.registerUser({
         name,
         lastName,
@@ -48,7 +45,6 @@ export class RegisterService implements IRegisterService {
 
       this.logger.info(`User registration successful: Verification email sent to ${email}`);
       return this.responseHandler.registrationSuccess(user.name, user.lastName, user.email);
-
     } catch (error) {
       this.logger.error(`Registration failed: ${(error as Error).message}`, error as Error);
       return this.responseHandler.unexpectedError("registration");

@@ -6,6 +6,7 @@
     "outDir": "./dist",
     "baseUrl": "src",
     "rootDir": "./",
+    "typeRoots" : ["./src/types"],
     "paths": {
       "@/*": ["*"]
     },

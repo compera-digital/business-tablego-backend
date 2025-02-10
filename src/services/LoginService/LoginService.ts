@@ -22,13 +22,13 @@ export class LoginService implements ILoginService {
 
       if (!user) {
         this.logger.warn("Failed login attempt: Invalid email or password", { email });
-        return this.responseHandler.invalidEmailFormat(); 
+        return this.responseHandler.invalidEmailOrPassword(); 
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      const isPasswordValid = await this.helper.comparePassword(password, user.password);
       if (!isPasswordValid) {
         this.logger.warn("Failed login attempt: Invalid email or password", { email });
-        return this.responseHandler.invalidEmailFormat(); 
+        return this.responseHandler.invalidEmailOrPassword(); 
       }
 
       if (!user.isVerified) {
@@ -40,8 +40,6 @@ export class LoginService implements ILoginService {
       this.logger.info("User logged in successfully", { email });
 
       const { password: _,  ...userWithoutPassword } = user;
-
-      console.log(userWithoutPassword, "userWithoutPassword");
 
       const token = await this.helper.generateToken(userWithoutPassword);
 
