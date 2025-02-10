@@ -56,6 +56,18 @@ export interface IResponseHandler {
     message: string;
   };
 
+  // User Responses
+  invalidCurrentPassword(): {
+    success: boolean;
+    status: number;
+    message: string;
+  };  
+  passwordChangeSuccess(): {
+    success: boolean;
+    status: number;
+    message: string;
+  };
+
   // Password Reset Responses
   passwordResetLinkSent(): {
     success: boolean;
@@ -151,6 +163,31 @@ export interface IResponseHandler {
     message: string;
   };
   unexpectedError(action: string): {
+    success: boolean;
+    status: number;
+    message: string;
+  };
+
+  // Auth Error Responses
+  unauthorized(): {
+    success: boolean;
+    status: number;
+    message: string;
+  };
+
+  forbidden(): {
+    success: boolean;
+    status: number;
+    message: string;
+  };
+
+  invalidToken(): {
+    success: boolean;
+    status: number;
+    message: string;
+  };
+
+  tokenExpired(): {
     success: boolean;
     status: number;
     message: string;

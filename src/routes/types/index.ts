@@ -1,6 +1,7 @@
-import { Request, Response } from "express";
-import { IRegisterService, ILoginService, IVerificationService } from "@/services";
+import { Request, Response, Router } from "express";
+import { IRegisterService, ILoginService, IVerificationService, IUserService } from "@/services";
 import { IResponseHandler, ILogger } from "@/utils";
+import { IAuthMiddleware } from "@/middleware/types";
 
 export interface IAuthController {
   register(req: Request, res: Response): Promise<void>;
@@ -20,3 +21,24 @@ export interface IAuthControllerDependencies {
   verificationService: IVerificationService;
   cookieMaxAge: number;
 }
+
+export interface IUserController {
+  changePassword(req: Request, res: Response): Promise<void>;
+}
+
+export interface IUserControllerDependencies {
+  responseHandler: IResponseHandler;
+  logger: ILogger;
+  userService: IUserService;
+}
+
+export interface IEndPoints {
+  getRouter(): Router;
+} 
+
+export interface IEndPointsDependencies {
+  authController: IAuthController;
+  userController: IUserController;
+  authMiddleware: IAuthMiddleware;
+}
+

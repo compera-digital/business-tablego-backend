@@ -16,8 +16,8 @@ export class Helper implements IHelper {
     return bcrypt.hash(password, 10);
   }
 
-  public async comparePassword(password: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(password, hash);
+  public async comparePassword(password: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
   }
 
   public async generateVerificationCode(): Promise<string> {

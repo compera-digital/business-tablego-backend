@@ -9,7 +9,7 @@ env:
   host: "development"
 
 verification:
-  codeExpirationTime: 300
+  codeExpirationTime: 30000
 
 auth:
   jwt:

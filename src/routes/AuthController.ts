@@ -91,7 +91,7 @@
     }
 
     async verifyResetToken(req: Request, res: Response) {
-      const { resetToken } = req.query;
+      const { resetToken } = req.body;
       try {
         const response = await this.verificationService.verifyPasswordResetToken(resetToken as string);
         res.status(response.status).json(response);
@@ -102,9 +102,9 @@
     }
 
     async resetPassword(req: Request, res: Response) {
-      const { token, newPassword } = req.body;
+      const { resetToken, newPassword } = req.body;
       try {
-        const response = await this.verificationService.resetPassword(token, newPassword);
+        const response = await this.verificationService.resetPassword(resetToken, newPassword);
         res.status(response.status).json(response);
       } catch (error) {
         this.logger.error(`Password reset failed: ${(error as Error).message}`);

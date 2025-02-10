@@ -177,7 +177,7 @@ export class VerificationService implements IVerificationService {
       }
 
       const hashedPassword = await this.helper.hashPassword(newPassword);
-      await this.dbService.updateUserPassword(email, hashedPassword);
+      await this.dbService.updateUserPasswordByEmail(email, hashedPassword);
       await this.redisClient.getClient().del(`passwordReset:${email}`);
 
       return this.responseHandler.passwordResetSuccess();

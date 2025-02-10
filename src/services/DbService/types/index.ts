@@ -10,9 +10,14 @@ export interface IDbService {
 
   findUserByEmail(email: string): Promise<User | null>;
 
+  findUserById(id: string): Promise<User | null>;
+
   updateUserVerification(email: string, isVerified: boolean): Promise<User>;
 
-  updateUserPassword(email: string, newPassword: string): Promise<User>;
+  updateUserPasswordByEmail(email: string, newPassword: string): Promise<User>;
+
+  updateUserPasswordById(id: string, newPassword: string): Promise<User>;
+
 }
 
 

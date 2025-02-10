@@ -99,6 +99,23 @@ export class ResponseHandler implements IResponseHandler {
     };
   }
 
+  // user responses
+  invalidCurrentPassword() {
+    return {
+      success: false,
+      status: 400,
+      message: "Current password is incorrect"
+    };
+  } 
+
+  passwordChangeSuccess() {
+    return {
+      success: true,
+      status: 200,
+      message: "Password changed successfully"
+    };
+  }
+  
   // Password Reset Responses
   passwordResetLinkSent() {
     return { 
@@ -252,6 +269,39 @@ export class ResponseHandler implements IResponseHandler {
       status: 500,
       message: `An unexpected error occurred during ${operation}. Please try again later.`,
       error: "INTERNAL_SERVER_ERROR"
+    };
+  }
+
+  // Auth Error Responses
+  unauthorized() {
+    return {
+      success: false,
+      status: 401,
+      message: "Authentication required"
+    };
+  }
+
+  forbidden() {
+    return {
+      success: false,
+      status: 403,
+      message: "Access forbidden"
+    };
+  }
+
+  invalidToken() {
+    return {
+      success: false,
+      status: 401,
+      message: "Invalid token"
+    };
+  }
+
+  tokenExpired() {
+    return {
+      success: false,
+      status: 401,
+      message: "Token has expired"
     };
   }
 }
