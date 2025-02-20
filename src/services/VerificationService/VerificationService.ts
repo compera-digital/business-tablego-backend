@@ -76,9 +76,9 @@ export class VerificationService implements IVerificationService {
       await this.redisClient.getClient().del(`verification:${email}`);
 
       const { password: _, ...userWithoutPassword } = user;
-      const token = await this.helper.generateToken(userWithoutPassword);
+      const accessToken = await this.helper.generateAccessToken(userWithoutPassword);
       
-      return this.responseHandler.verificationSuccess(userWithoutPassword, token);
+      return this.responseHandler.verificationSuccess(userWithoutPassword, accessToken);
     } catch (error) {
       this.logger.error("Error verifying code", error as Error);
       throw error;

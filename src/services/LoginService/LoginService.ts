@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt";
 import { ILoginService, ILoginServiceDependencies } from "./types";
+import { AuthProvider } from "@prisma/client";
 
 export class LoginService implements ILoginService {
   private readonly dbService;
@@ -41,16 +41,57 @@ export class LoginService implements ILoginService {
 
       const { password: _,  ...userWithoutPassword } = user;
 
-      const token = await this.helper.generateToken(userWithoutPassword);
+      const accessToken = await this.helper.generateAccessToken(userWithoutPassword);
 
       return this.responseHandler.loginSuccess(
         userWithoutPassword,
-        token
+        accessToken
       );
 
     } catch (error) {
       this.logger.error("An error occurred during login", error as Error);
       return this.responseHandler.unexpectedError("login"); 
+    }
+  }
+
+  async googleLogin(token: string) {
+    try {
+      const googleUser = await this.helper.verifyGoogleToken(token);
+      let user = await this.dbService.findUserByEmail(googleUser.email);
+
+      if (user) {
+        const { password: _, ...userWithoutPassword } = user;
+        const accessToken = await this.helper.generateAccessToken(userWithoutPassword);
+        return this.responseHandler.loginSuccess(userWithoutPassword, accessToken);
+      }
+
+      const hashedPassword = await this.helper.hashPassword(
+        this.helper.generateRandomPassword()
+      );
+
+      await this.dbService.registerUser({
+        name: googleUser.name,
+        lastName: googleUser.lastName,
+        email: googleUser.email,
+        referralCode: '',
+        password: hashedPassword,
+        isVerified: true,
+        authProvider: 'GOOGLE' as AuthProvider
+      });
+
+      user = await this.dbService.findUserByEmail(googleUser.email);
+
+      if (!user) {
+        return this.responseHandler.unexpectedError('User not created');
+      }
+
+      const { password: _, ...userWithoutPassword } = user;
+      const accessToken = await this.helper.generateAccessToken(userWithoutPassword);
+      return this.responseHandler.loginSuccess(userWithoutPassword, accessToken);
+
+    } catch (error) {
+      this.logger.error('Google login failed', error as Error);
+      return this.responseHandler.unexpectedError('Google login failed');
     }
   }
 }

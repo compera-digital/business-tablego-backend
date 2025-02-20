@@ -11,6 +11,7 @@ export interface IAuthController {
   forgotPassword(req: Request, res: Response): Promise<void>;
   verifyResetToken(req: Request, res: Response): Promise<void>;
   resetPassword(req: Request, res: Response): Promise<void>;
+  googleLogin(req: Request, res: Response): Promise<void>;
 }
 
 export interface IAuthControllerDependencies {

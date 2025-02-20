@@ -8,50 +8,60 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
+  id           String       @id @default(uuid())
   name         String
   lastName     String
-  email        String   @unique
-  referralCode String?  
-  password     String  
-  isVerified   Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  email        String       @unique
+  referralCode String?
+  password     String
+  isVerified   Boolean      @default(false)
+  authProvider AuthProvider @default(EMAIL)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
-  restaurants UserRestaurantRole[]
+  // İlişkileri tanımlayalım
+  restaurants     Restaurant[]
+  restaurantRoles UserRestaurantRole[] // Eksik olan karşı ilişki
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
 }
 
 model Restaurant {
-  id          String      @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
   description String?
   address     String
   city        String
   country     String
-  phone       String?
-  email       String @unique
+  phone       String
+  email       String   @unique
   website     String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  users         UserRestaurantRole[]
-  reservations  Reservation[]
-  menu          MenuItem[]
+  // İlişkileri tanımlayalım
+  users        User[] // User ile many-to-many ilişki
+  userRoles    UserRestaurantRole[]
+  reservations Reservation[]
+  menu         MenuItem[]
 }
 
 model Reservation {
-  id           String     @id @default(uuid())
-  customerName String
-  customerPhone String
-  customerEmail String
-  numberOfPeople Int
+  id              String            @id @default(uuid())
+  customerName    String
+  customerPhone   String
+  customerEmail   String
+  numberOfPeople  Int
   reservationTime DateTime
-  status       ReservationStatus @default(PENDING)
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  restaurantId String
+  status          ReservationStatus @default(PENDING)
+  restaurant      Restaurant        @relation(fields: [restaurantId], references: [id])
+  restaurantId    String
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model MenuItem {
@@ -63,7 +73,6 @@ model MenuItem {
   restaurantId String
 }
 
-
 enum ReservationStatus {
   PENDING
   CONFIRMED
@@ -72,37 +81,43 @@ enum ReservationStatus {
 }
 
 model UserRestaurantRole {
-  id           String      @id @default(uuid())
+  id           String   @id @default(uuid())
   userId       String
   restaurantId String
-  role         UserRole   
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  role         Role     @default(STAFF)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  user        User       @relation(fields: [userId], references: [id])
-  restaurant  Restaurant @relation(fields: [restaurantId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@unique([userId, restaurantId])
 }
 
 // New model: Stores default permissions for each role
 model RoleDefaultPermissions {
-  id          String      @id @default(uuid())
-  role        UserRole    @unique
+  id          String       @id @default(uuid())
+  role        UserRole     @unique
   permissions Permission[]
 }
 
 enum UserRole {
-  OWNER       // Has all permissions
-  MANAGER     // Manager with limited permissions
-  STAFF       // Regular staff
+  OWNER // Has all permissions
+  MANAGER // Manager with limited permissions
+  STAFF // Regular staff
 }
 
 enum Permission {
-  MANAGE_RESTAURANT     // Edit restaurant information
-  MANAGE_STAFF         // Staff management
-  MANAGE_MENU          // Menu management
-  MANAGE_RESERVATIONS  // Reservation management
-  VIEW_REPORTS         // View reports
-  BASIC_OPERATIONS     // Basic operations (like viewing reservations)
+  MANAGE_RESTAURANT // Edit restaurant information
+  MANAGE_STAFF // Staff management
+  MANAGE_MENU // Menu management
+  MANAGE_RESERVATIONS // Reservation management
+  VIEW_REPORTS // View reports
+  BASIC_OPERATIONS // Basic operations (like viewing reservations)
 }
 
-
+enum Role {
+  OWNER
+  MANAGER
+  STAFF
+}

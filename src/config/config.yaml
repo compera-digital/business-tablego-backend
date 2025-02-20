@@ -1,37 +1,56 @@
-app:
-  name: "TableGo API"
-  environment: "development"
+# Server Configuration
+server:
   port: 3000
   host: "localhost"
   apiPrefix: "/api/v1"
 
-env:
-  host: "development"
-
-verification:
-  codeExpirationTime: 30000
-
+# Authentication
 auth:
   jwt:
-    expiresIn: "7d"  # 7 days
-    cookieMaxAge: 604800000  # 7 days 
+    token: ${JWT_SECRET}
+    expiresIn: "24h"
+    cookieMaxAge: 604800000  # 7 days in milliseconds
+  google:
+    clientId: ${GOOGLE_CLIENT_ID}
+    clientSecret: ${GOOGLE_CLIENT_SECRET}
 
-mail:
+# Database Configuration
+database:
+  postgres:
+    url: ${DATABASE_URL}
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    database: ${DB_NAME}
+  redis:
+    url: ${REDIS_URL}
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+
+# Email Configuration
+email:
   smtp:
-    server: "smtp.gmail.com"
-    port: 465
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    secure: true
+    auth:
+      user: ${SMTP_USER}
+      pass: ${SMTP_PASSWORD}
+  sender:
+    name: "Your App Name"
+    email: ${SMTP_FROM_EMAIL}
 
+# Verification Configuration
+verification:
+  codeExpirationTime: 300000  # 5 minutes in milliseconds
+
+# Cors Configuration
 cors:
-  allowedOrigins:
-    - "http://localhost:3000"
-    - "http://localhost:3001"
-  allowedMethods:
-    - "GET"
-    - "POST"
-    - "PUT"
-    - "DELETE"
-    - "PATCH"
+  origin: ${CORS_ORIGIN}
+  credentials: true
 
-rateLimit:
-  windowMs: 900000  
-  maxRequests: 100
+# Cache Configuration
+cache:
+  ttl: 3600  # 1 hour in seconds

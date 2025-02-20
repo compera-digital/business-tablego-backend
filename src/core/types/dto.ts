@@ -1,3 +1,4 @@
+import { AuthProvider } from "@prisma/client";
 
 export interface RegisterUserDTO {
     name: string;
@@ -5,6 +6,7 @@ export interface RegisterUserDTO {
     email: string;
     referralCode: string;
     password: string;
+    authProvider: AuthProvider;
     isVerified: boolean;
 }
 

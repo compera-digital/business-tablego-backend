@@ -22,6 +22,7 @@ export class ResponseHandler implements IResponseHandler {
       status: 200,
       message: "Logged in successfully.",
       user: { 
+        id: user.id,
         name: user.name, 
         lastName: user.lastName, 
         email: user.email, 

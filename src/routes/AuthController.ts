@@ -47,6 +47,24 @@
       }
     }
 
+    async googleLogin(req: Request, res: Response) {
+      const { token } = req.body;
+      try {
+        const response = await this.loginService.googleLogin(token);
+        if (response.success && response.token) {
+          res.cookie('accessToken', response.token, {
+            httpOnly: true,
+            maxAge: this.cookieMaxAge
+          });
+        }
+        const { token: _, ...responseData } = response;
+        res.status(responseData.status).json(responseData);
+      } catch (error) {
+        this.logger.error(`Google login failed: ${(error as Error).message}`);
+        res.status(500).json(this.responseHandler.unexpectedError("google authentication"));
+      }
+    }
+
     async verifyCode(req: Request, res: Response) {
       const { email, code } = req.body;
       try {
@@ -111,4 +129,5 @@
         res.status(500).json(this.responseHandler.unexpectedError("password reset"));
       }
     }
+
   }

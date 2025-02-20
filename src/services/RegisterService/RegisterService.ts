@@ -1,19 +1,17 @@
-import bcrypt from "bcrypt";
 import { IRegisterService, IRegisterServiceDependencies } from "./types";
+import { AuthProvider } from "@prisma/client";
 
 export class RegisterService implements IRegisterService {
   private readonly dbService;
   private readonly verificationService;
   private readonly responseHandler;
   private readonly logger;
-  private readonly redisClient;
   private readonly helper;
 
-  constructor({ dbService, verificationService, redisClient, responseHandler, logger, helper }: IRegisterServiceDependencies) {
+  constructor({ dbService, verificationService, responseHandler, logger, helper }: IRegisterServiceDependencies) {
     this.dbService = dbService;
     this.responseHandler = responseHandler;
     this.verificationService = verificationService;
-    this.redisClient = redisClient;
     this.logger = logger;
     this.helper = helper;
   }
@@ -39,6 +37,7 @@ export class RegisterService implements IRegisterService {
         referralCode,
         password: hashedPassword,
         isVerified: false,
+        authProvider: 'EMAIL' as AuthProvider
       });
 
       await this.verificationService.generateCode(email);

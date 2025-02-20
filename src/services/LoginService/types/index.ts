@@ -4,6 +4,7 @@ import { IRedisClient } from "@/core/infrastructure";
 
 export interface ILoginService {
     login(email: string, password: string): Promise<any>;
+    googleLogin(token: string): Promise<any>;
   }
 
   export interface ILoginServiceDependencies {
