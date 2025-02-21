@@ -1,4 +1,4 @@
-import { OAuth2Client } from 'google-auth-library';
+import { OAuth2Client } from "google-auth-library";
 
 // User related interfaces
 export interface IUser {
@@ -28,33 +28,30 @@ export interface IHelperDependencies {
     jwtToken: string;
     jwtExpiresIn: string | number;
   };
-  googleClientId: OAuth2Client;
 }
 
 // Main Helper interface
 export interface IHelper {
   // Authentication methods
   generateAccessToken(user: IUser): Promise<string>;
-  verifyGoogleToken(token: string): Promise<GoogleUserInfo>;
-  
+
   // Password related methods
   hashPassword(password: string): Promise<string>;
   comparePassword(password: string, hashedPassword: string): Promise<boolean>;
   generateRandomPassword(): string;
-  
+
   // Password reset methods
   generatePasswordResetToken(user: IUser): Promise<string>;
-  verifyPasswordResetToken(token: string): Promise<{ valid: boolean; email?: string }>;
-  
+  verifyPasswordResetToken(
+    token: string
+  ): Promise<{ valid: boolean; email?: string }>;
+
   // Verification methods
   generateVerificationCode(): Promise<string>;
-  
+
   // Validation methods
   validateEmail(email: string): Promise<boolean>;
-  
+
   // Utility methods
   formatDate(date: Date): Promise<string>;
 }
-
-
-

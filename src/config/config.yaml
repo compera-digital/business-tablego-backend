@@ -9,10 +9,7 @@ auth:
   jwt:
     token: ${JWT_SECRET}
     expiresIn: "24h"
-    cookieMaxAge: 604800000  # 7 days in milliseconds
-  google:
-    clientId: ${GOOGLE_CLIENT_ID}
-    clientSecret: ${GOOGLE_CLIENT_SECRET}
+    cookieMaxAge: 604800000 # 7 days in milliseconds
 
 # Database Configuration
 database:
@@ -44,7 +41,7 @@ email:
 
 # Verification Configuration
 verification:
-  codeExpirationTime: 300000  # 5 minutes in milliseconds
+  codeExpirationTime: 300000 # 5 minutes in milliseconds
 
 # Cors Configuration
 cors:
@@ -53,4 +50,4 @@ cors:
 
 # Cache Configuration
 cache:
-  ttl: 3600  # 1 hour in seconds
+  ttl: 3600 # 1 hour in seconds

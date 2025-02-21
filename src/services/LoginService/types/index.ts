@@ -3,14 +3,13 @@ import { IDbService } from "@/services";
 import { IRedisClient } from "@/core/infrastructure";
 
 export interface ILoginService {
-    login(email: string, password: string): Promise<any>;
-    googleLogin(token: string): Promise<any>;
-  }
+  login(email: string, password: string): Promise<any>;
+}
 
-  export interface ILoginServiceDependencies {
-    dbService: IDbService;
-    redisClient: IRedisClient;
-    logger: ILogger;
-    responseHandler: IResponseHandler;
-    helper: IHelper;
-  }
+export interface ILoginServiceDependencies {
+  dbService: IDbService;
+  redisClient: IRedisClient;
+  logger: ILogger;
+  responseHandler: IResponseHandler;
+  helper: IHelper;
+}

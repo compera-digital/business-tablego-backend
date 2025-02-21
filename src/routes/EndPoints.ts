@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { IEndPoints, IEndPointsDependencies } from "./types";
-import { rateLimits } from '../config/rateLimit';
+import { rateLimits } from "../config/rateLimit";
 
 export class EndPoints implements IEndPoints {
   private readonly router: Router;
@@ -8,7 +8,11 @@ export class EndPoints implements IEndPoints {
   private readonly userController;
   private readonly authMiddleware;
 
-  constructor({ authController, userController, authMiddleware }: IEndPointsDependencies) {
+  constructor({
+    authController,
+    userController,
+    authMiddleware,
+  }: IEndPointsDependencies) {
     this.router = Router();
     this.authController = authController;
     this.userController = userController;
@@ -17,52 +21,45 @@ export class EndPoints implements IEndPoints {
   }
 
   private initializeRoutes(): void {
-
     // Auth Routes
     this.router.post(
-      "/auth/register", 
+      "/auth/register",
       rateLimits.register,
       this.authController.register.bind(this.authController)
     );
 
     this.router.post(
-      "/auth/login", 
+      "/auth/login",
       rateLimits.login,
       this.authController.login.bind(this.authController)
     );
 
     this.router.post(
-      "/auth/googleLogin",
-      rateLimits.login,
-      this.authController.googleLogin.bind(this.authController)
-    );
-
-    this.router.post(
-      "/auth/verify-code", 
+      "/auth/verify-code",
       rateLimits.verifyCode,
       this.authController.verifyCode.bind(this.authController)
     );
 
     this.router.post(
-      "/auth/resend-code", 
+      "/auth/resend-code",
       rateLimits.resendCode,
       this.authController.resendCode.bind(this.authController)
     );
 
     this.router.post(
-      "/auth/forgot-password", 
+      "/auth/forgot-password",
       rateLimits.forgotPassword,
       this.authController.forgotPassword.bind(this.authController)
     );
 
     this.router.post(
-      "/auth/verify-reset-token", 
+      "/auth/verify-reset-token",
       rateLimits.verifyResetToken,
       this.authController.verifyResetToken.bind(this.authController)
     );
 
     this.router.post(
-      "/auth/reset-password", 
+      "/auth/reset-password",
       rateLimits.resetPassword,
       this.authController.resetPassword.bind(this.authController)
     );
@@ -76,9 +73,6 @@ export class EndPoints implements IEndPoints {
       rateLimits.changePassword,
       this.userController.changePassword.bind(this.userController)
     );
-
-
-
   }
 
   public getRouter(): Router {

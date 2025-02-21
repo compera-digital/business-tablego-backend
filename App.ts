@@ -6,58 +6,64 @@ import cors from "cors";
 import { ResponseHandler, Logger, Helper } from "./src/utils";
 import { DbConnect } from "./src/core/infrastructure/database";
 import { EndPoints, AuthController, UserController } from "./src/routes";
-import { 
-  RegisterService, 
-  LoginService, 
-  DbService, 
-  MailService, 
-  VerificationService, 
-  UserService
+import {
+  RegisterService,
+  LoginService,
+  DbService,
+  MailService,
+  VerificationService,
+  UserService,
 } from "./src/services";
 
-import { 
+import {
   IRegisterService,
   ILoginService,
   IDbService,
-  IMailService, 
+  IMailService,
   IVerificationService,
-  ILogoutService
+  ILogoutService,
 } from "./src/services/types";
 
 import { RedisClient } from "./src/core/infrastructure/redis";
 import { AuthMiddleware } from "./src/middleware/auth";
-import { OAuth2Client } from 'google-auth-library';
-import { config } from './src/config/config';
+import { config } from "./src/config/config";
 
 export class App {
   private readonly app: Application;
   private readonly port: number;
-  private readonly jwtConfig: ReturnType<typeof config.getJwtConfig>;
-  private readonly mailConfig: ReturnType<typeof config.getMailConfig>;
-  private logger!: Logger;
-  private responseHandler!: ResponseHandler;
-  private helper!: Helper;
-  private dbService!: IDbService;
-  private dbConnect!: DbConnect;
-  private redisClient!: RedisClient;
-  private registerService!: IRegisterService;
-  private loginService!: ILoginService;
-  private mailService!: IMailService;
-  private verificationService!: IVerificationService;
-  private authController!: AuthController;
-  private codeExpirationTime!: number;
-  private cookieMaxAge!: number;
-  private authMiddleware!: AuthMiddleware;
-  private endpoints!: EndPoints;
-  private userService!: UserService;
-  private userController!: UserController;
+  private readonly host: string;
+  private readonly apiPrefix: string;
+  private readonly jwtConfig;
+  private readonly mailConfig;
+  private readonly codeExpirationTime;
+  private readonly cookieMaxAge;
+
+  private logger;
+  private responseHandler;
+  private helper;
+  private dbService;
+  private dbConnect;
+  private redisClient;
+  private mailService;
+  private verificationService;
+  private registerService;
+  private loginService;
+  private userService;
+  private authMiddleware;
+  private endPoints;
+  private authController;
+  private userController;
 
   constructor() {
     this.app = express();
-    this.port = config.getPort();
+    this.port = config.getServerConfig().port;
+    this.host = config.getServerConfig().host;
+    this.apiPrefix = config.getServerConfig().apiPrefix;
     this.jwtConfig = config.getJwtConfig();
     this.mailConfig = config.getMailConfig();
-    
+    this.codeExpirationTime = config.getVerificationConfig().codeExpirationTime;
+    this.cookieMaxAge = config.getFullAuthConfig().jwt.cookieMaxAge;
+
     this.setupMiddleware();
     this.setupRoutes();
   }
@@ -67,24 +73,18 @@ export class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
-    
+
     // CORS configuration
     this.app.use(cors(config.getCorsConfig()));
-
-
-    this.codeExpirationTime = config.getVerificationConfig().codeExpirationTime;
-    this.cookieMaxAge = config.getFullAuthConfig().jwt.cookieMaxAge;
 
     // Initialize services
     this.logger = new Logger("App");
     this.responseHandler = new ResponseHandler();
-    
-    const googleClient = new OAuth2Client(config.getGoogleConfig().clientId);
-    this.helper = new Helper({ 
+
+    this.helper = new Helper({
       jwtConfig: this.jwtConfig,
-      googleClientId: googleClient 
     });
-    
+
     this.dbService = new DbService();
     this.dbConnect = DbConnect.getInstance({
       logger: new Logger("DbConnect"),
@@ -145,26 +145,24 @@ export class App {
       dbService: this.dbService,
       helper: this.helper,
       responseHandler: this.responseHandler,
-      logger: new Logger("UserService")
+      logger: new Logger("UserService"),
     });
 
     this.userController = new UserController({
       userService: this.userService,
       responseHandler: this.responseHandler,
-      logger: new Logger("UserController")
+      logger: new Logger("UserController"),
     });
 
-    this.endpoints = new EndPoints({
+    this.endPoints = new EndPoints({
       authController: this.authController,
       userController: this.userController,
-      authMiddleware: this.authMiddleware
+      authMiddleware: this.authMiddleware,
     });
-
   }
 
   private setupRoutes(): void {
-    const apiPrefix = config.getApiPrefix();
-    this.app.use(apiPrefix, this.endpoints.getRouter());
+    this.app.use(this.apiPrefix, this.endPoints.getRouter());
   }
 
   public async start(): Promise<void> {
@@ -175,7 +173,9 @@ export class App {
 
       this.app.listen(this.port, () => {
         const serverConfig = config.getServerConfig();
-        this.logger.info(`✅ Server is running on http://${serverConfig.host}:${this.port}`);
+        this.logger.info(
+          `✅ Server is running on http://${serverConfig.host}:${this.port}`
+        );
       });
     } catch (error) {
       this.logger.error("❌ Server failed to start", error as Error);

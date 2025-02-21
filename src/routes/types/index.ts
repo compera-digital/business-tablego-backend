@@ -1,5 +1,10 @@
 import { Request, Response, Router } from "express";
-import { IRegisterService, ILoginService, IVerificationService, IUserService } from "@/services";
+import {
+  IRegisterService,
+  ILoginService,
+  IVerificationService,
+  IUserService,
+} from "@/services";
 import { IResponseHandler, ILogger } from "@/utils";
 import { IAuthMiddleware } from "@/middleware/types";
 
@@ -11,7 +16,6 @@ export interface IAuthController {
   forgotPassword(req: Request, res: Response): Promise<void>;
   verifyResetToken(req: Request, res: Response): Promise<void>;
   resetPassword(req: Request, res: Response): Promise<void>;
-  googleLogin(req: Request, res: Response): Promise<void>;
 }
 
 export interface IAuthControllerDependencies {
@@ -35,11 +39,10 @@ export interface IUserControllerDependencies {
 
 export interface IEndPoints {
   getRouter(): Router;
-} 
+}
 
 export interface IEndPointsDependencies {
   authController: IAuthController;
   userController: IUserController;
   authMiddleware: IAuthMiddleware;
 }
-
