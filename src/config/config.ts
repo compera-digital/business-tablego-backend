@@ -1,7 +1,7 @@
-import dotenv from 'dotenv';
-import path from 'path';
-import fs from 'fs';
-import yaml from 'js-yaml';
+import dotenv from "dotenv";
+import path from "path";
+import fs from "fs";
+import yaml from "js-yaml";
 
 class Config {
   private static instance: Config;
@@ -20,9 +20,9 @@ class Config {
   }
 
   private loadEnvironmentVariables(): void {
-    const environment = process.env.NODE_ENV || 'development';
+    const environment = process.env.NODE_ENV || "development";
     const envPath = path.resolve(process.cwd(), `.env.${environment}`);
-    
+
     if (fs.existsSync(envPath)) {
       dotenv.config({ path: envPath });
     } else {
@@ -33,12 +33,12 @@ class Config {
 
   private loadConfig(): any {
     try {
-      const configPath = path.resolve(process.cwd(), 'src/config/config.yaml');
-      const fileContents = fs.readFileSync(configPath, 'utf8');
+      const configPath = path.resolve(process.cwd(), "src/config/config.yaml");
+      const fileContents = fs.readFileSync(configPath, "utf8");
       const interpolatedYaml = this.interpolateEnvVars(fileContents);
       return yaml.load(interpolatedYaml);
     } catch (error) {
-      console.error('Error loading config:', error);
+      console.error("Error loading config:", error);
       process.exit(1);
     }
   }
@@ -62,7 +62,7 @@ class Config {
   public getJwtConfig() {
     return {
       jwtToken: this.config.auth.jwt.token,
-      jwtExpiresIn: this.config.auth.jwt.expiresIn
+      jwtExpiresIn: this.config.auth.jwt.expiresIn,
     };
   }
 
@@ -71,7 +71,7 @@ class Config {
       user: this.config.email.smtp.auth.user,
       pass: this.config.email.smtp.auth.pass,
       server: this.config.email.smtp.host,
-      port: this.config.email.smtp.port
+      port: this.config.email.smtp.port,
     };
   }
 
@@ -82,7 +82,7 @@ class Config {
       port: this.config.database.postgres.port,
       username: this.config.database.postgres.username,
       password: this.config.database.postgres.password,
-      database: this.config.database.postgres.database
+      database: this.config.database.postgres.database,
     };
   }
 
@@ -90,31 +90,20 @@ class Config {
     return {
       host: this.config.database.redis.host,
       port: this.config.database.redis.port,
-      password: this.config.database.redis.password
+      password: this.config.database.redis.password,
     };
   }
 
   public getCorsConfig() {
     return {
       origin: this.config.cors.origin,
-      credentials: this.config.cors.credentials
+      credentials: this.config.cors.credentials,
     };
-  }
-
-  public getGoogleConfig() {
-    return {
-      clientId: this.config.auth.google.clientId,
-      clientSecret: this.config.auth.google.clientSecret
-    };
-  }
-
-  public getApiPrefix(): string {
-    return this.config.server.apiPrefix;
   }
 
   public getVerificationConfig() {
     return {
-      codeExpirationTime: this.config.verification.codeExpirationTime
+      codeExpirationTime: this.config.verification.codeExpirationTime,
     };
   }
 
@@ -123,12 +112,21 @@ class Config {
       jwt: {
         token: this.config.auth.jwt.token,
         expiresIn: this.config.auth.jwt.expiresIn,
-        cookieMaxAge: this.config.auth.jwt.cookieMaxAge
+        cookieMaxAge: this.config.auth.jwt.cookieMaxAge,
       },
       google: {
         clientId: this.config.auth.google.clientId,
-        clientSecret: this.config.auth.google.clientSecret
-      }
+        clientSecret: this.config.auth.google.clientSecret,
+        callbackURL: this.config.auth.google.callbackURL,
+      },
+    };
+  }
+
+  public getGoogleConfig() {
+    return {
+      clientId: this.config.auth.google.clientId,
+      clientSecret: this.config.auth.google.clientSecret,
+      callbackURL: this.config.auth.google.callbackURL,
     };
   }
 
@@ -137,7 +135,7 @@ class Config {
     return {
       port: this.config.server.port,
       host: this.config.server.host,
-      apiPrefix: this.config.server.apiPrefix
+      apiPrefix: this.config.server.apiPrefix,
     };
   }
 }

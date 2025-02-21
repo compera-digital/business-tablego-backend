@@ -7,15 +7,17 @@ import {
 } from "@/services";
 import { IResponseHandler, ILogger } from "@/utils";
 import { IAuthMiddleware } from "@/middleware/types";
+import { IHelper } from "@/utils/types";
 
 export interface IAuthController {
-  register(req: Request, res: Response): Promise<void>;
-  login(req: Request, res: Response): Promise<void>;
-  verifyCode(req: Request, res: Response): Promise<void>;
-  resendCode(req: Request, res: Response): Promise<void>;
-  forgotPassword(req: Request, res: Response): Promise<void>;
-  verifyResetToken(req: Request, res: Response): Promise<void>;
-  resetPassword(req: Request, res: Response): Promise<void>;
+  register(req: Request, res: Response): Promise<any>;
+  login(req: Request, res: Response): Promise<any>;
+  verifyCode(req: Request, res: Response): Promise<any>;
+  resendCode(req: Request, res: Response): Promise<any>;
+  forgotPassword(req: Request, res: Response): Promise<any>;
+  verifyResetToken(req: Request, res: Response): Promise<any>;
+  resetPassword(req: Request, res: Response): Promise<any>;
+  googleCallback(req: Request, res: Response): Promise<any>;
 }
 
 export interface IAuthControllerDependencies {
@@ -25,6 +27,7 @@ export interface IAuthControllerDependencies {
   logger: ILogger;
   verificationService: IVerificationService;
   cookieMaxAge: number;
+  helper: IHelper;
 }
 
 export interface IUserController {

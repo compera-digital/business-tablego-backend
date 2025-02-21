@@ -1,4 +1,5 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
+import passport from "passport";
 import { IEndPoints, IEndPointsDependencies } from "./types";
 import { rateLimits } from "../config/rateLimit";
 
@@ -64,7 +65,33 @@ export class EndPoints implements IEndPoints {
       this.authController.resetPassword.bind(this.authController)
     );
 
-    this.router.post("/auth/check-auth", this.authMiddleware.authenticate);
+    // Check Auth endpoint
+    this.router.get(
+      "/auth/check-auth",
+      this.authMiddleware.authenticate,
+      (req: Request, res: Response) => {
+        res.status(200).json({
+          success: true,
+          status: 200,
+          message: "Authenticated successfully",
+          data: {
+            user: req.user,
+          },
+        });
+      }
+    );
+
+    // Google Auth Routes
+    this.router.get(
+      "/auth/google",
+      passport.authenticate("google", { scope: ["profile", "email"] })
+    );
+
+    this.router.get(
+      "/auth/google/callback",
+      passport.authenticate("google", { session: false }),
+      this.authController.googleCallback.bind(this.authController)
+    );
 
     // User Routes
     this.router.post(

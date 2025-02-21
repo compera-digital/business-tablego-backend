@@ -6,7 +6,6 @@ import {
   IHelperDependencies,
   IUser,
   PasswordResetTokenPayload,
-  GoogleUserInfo,
 } from "./types";
 
 export class Helper implements IHelper {

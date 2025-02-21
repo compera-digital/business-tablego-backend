@@ -8,6 +8,7 @@ export class AuthController implements IAuthController {
   private readonly loginService;
   private readonly verificationService;
   private readonly cookieMaxAge;
+  private readonly helper;
 
   constructor({
     registerService,
@@ -16,6 +17,7 @@ export class AuthController implements IAuthController {
     logger,
     verificationService,
     cookieMaxAge,
+    helper,
   }: IAuthControllerDependencies) {
     this.registerService = registerService;
     this.loginService = loginService;
@@ -23,6 +25,7 @@ export class AuthController implements IAuthController {
     this.logger = logger;
     this.verificationService = verificationService;
     this.cookieMaxAge = cookieMaxAge;
+    this.helper = helper;
   }
 
   async register(req: Request, res: Response) {
@@ -57,6 +60,9 @@ export class AuthController implements IAuthController {
       if (response.success && response.token) {
         res.cookie("accessToken", response.token, {
           httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+          path: "/",
           maxAge: this.cookieMaxAge,
         });
       }
@@ -80,6 +86,9 @@ export class AuthController implements IAuthController {
       if (response.success && response.token) {
         res.cookie("accessToken", response.token, {
           httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+          path: "/",
           maxAge: this.cookieMaxAge,
         });
       }
@@ -164,6 +173,44 @@ export class AuthController implements IAuthController {
       res
         .status(500)
         .json(this.responseHandler.unexpectedError("password reset"));
+    }
+  }
+
+  async googleCallback(req: Request, res: Response) {
+    try {
+      const user = req.user;
+      if (!user) {
+        this.logger.error("Google authentication failed: No user data");
+        return res
+          .status(401)
+          .json(this.responseHandler.unexpectedError("authentication"));
+      }
+
+      const { password: _, ...userWithoutPassword } = user as any;
+      const accessToken = await this.helper.generateAccessToken(
+        userWithoutPassword
+      );
+
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        path: "/",
+        maxAge: this.cookieMaxAge,
+      });
+
+      return res
+        .status(200)
+        .json(
+          this.responseHandler.loginSuccess(userWithoutPassword, accessToken)
+        );
+    } catch (error) {
+      this.logger.error(
+        `Google authentication failed: ${(error as Error).message}`
+      );
+      return res
+        .status(500)
+        .json(this.responseHandler.unexpectedError("authentication"));
     }
   }
 }

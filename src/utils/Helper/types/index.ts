@@ -1,5 +1,3 @@
-import { OAuth2Client } from "google-auth-library";
-
 // User related interfaces
 export interface IUser {
   id: string;
@@ -9,13 +7,6 @@ export interface IUser {
 }
 
 // Authentication related interfaces
-export interface GoogleUserInfo {
-  email: string;
-  name: string;
-  lastName: string;
-  picture: string;
-}
-
 export interface PasswordResetTokenPayload {
   type: string;
   email: string;

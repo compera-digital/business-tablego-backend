@@ -6,7 +6,11 @@ export class UserController implements IUserController {
   private readonly responseHandler;
   private readonly userService;
 
-  constructor({ responseHandler, logger, userService }: IUserControllerDependencies) {
+  constructor({
+    responseHandler,
+    logger,
+    userService,
+  }: IUserControllerDependencies) {
     this.responseHandler = responseHandler;
     this.logger = logger;
     this.userService = userService;
@@ -17,14 +21,16 @@ export class UserController implements IUserController {
     const userId = req.user?.id;
     try {
       const response = await this.userService.changePassword(
-        userId!, 
-        currentPassword, 
+        userId!,
+        currentPassword,
         newPassword
       );
       res.status(response.status).json(response);
     } catch (error) {
       this.logger.error(`Password change failed: ${(error as Error).message}`);
-      res.status(500).json(this.responseHandler.unexpectedError("password change"));
+      res
+        .status(500)
+        .json(this.responseHandler.unexpectedError("password change"));
     }
   }
 }

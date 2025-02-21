@@ -7,4 +7,4 @@ export interface ILogoutService {
 
 export interface ILogoutServiceDependencies {
   logger: ILogger;
-} 
+}

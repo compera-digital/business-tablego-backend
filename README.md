@@ -1,10 +1,13 @@
-```markdown:README.md```
+`markdown:README.md`
+
 # TableGo Business Backend
 
 A comprehensive backend service for restaurant owners to manage their businesses through the TableGo platform. This service handles restaurant owner registration, authentication, restaurant management, menu management, and more.
 
 ## 📖 Summary
+
 TableGo Business Backend is designed for restaurant owners to:
+
 - Register and manage their accounts
 - Add and manage their restaurants
 - Handle menu items and categories
@@ -15,6 +18,7 @@ TableGo Business Backend is designed for restaurant owners to:
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js (v20.10 or higher)
 - Yarn package manager
 - Docker and Docker Compose
@@ -24,34 +28,40 @@ TableGo Business Backend is designed for restaurant owners to:
 ### Quick Start
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/tablego-business-backend.git
 cd tablego-business-backend
 ```
 
 2. Install dependencies:
+
 ```bash
 yarn install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
 ```
 
 4. Start Docker services:
+
 ```bash
 docker compose up -d
 ```
 
 5. Run database migrations:
+
 ```bash
 npx prisma generate
 npx prisma migrate dev --name ['your-migration-name']
 ```
 
 6. Start development server:
+
 ```bash
 yarn dev
 ```
@@ -59,6 +69,7 @@ yarn dev
 ## 🔑 Authentication Endpoints
 
 ### 1. Register Restaurant Owner
+
 Register a new restaurant owner account.
 
 ```bash
@@ -74,6 +85,7 @@ curl -X POST http://localhost:3000/api/v1/auth/register \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -88,6 +100,7 @@ Response:
 ```
 
 ### 2. Email Verification
+
 Verify email address with received code.
 
 ```bash
@@ -100,6 +113,7 @@ curl -X POST http://localhost:3000/api/v1/auth/verify-code \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -109,6 +123,7 @@ Response:
 ```
 
 ### 3. Resend Verification Code
+
 Request a new verification code.
 
 ```bash
@@ -120,6 +135,7 @@ curl -X POST http://localhost:3000/api/v1/auth/resend-code \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -127,7 +143,9 @@ Response:
   "message": "Verification code sent successfully."
 }
 ```
+
 ### 4. Login
+
 Authenticate restaurant owner.
 
 ```bash
@@ -140,25 +158,90 @@ curl -X POST http://localhost:3000/api/v1/auth/login \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
   "status": 200,
-  "message": "Login successful.",
+  "message": "Login successful."
+}
+```
+
+### 5. Check Authentication Status
+
+Check if the user is authenticated and get user information.
+
+```bash
+curl -X GET http://localhost:3000/api/v1/auth/check-auth \
+-H "Cookie: accessToken=your_access_token_here"
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Authenticated successfully",
+  "data": {
+    "user": {
+      "id": "user_id",
+      "email": "restaurant.owner@example.com",
+      "name": "John",
+      "lastName": "Doe",
+      "isVerified": true,
+      "authProvider": "EMAIL"
+    }
+  }
+}
+```
+
+Error Responses:
+
+1. No Token Provided:
+
+```json
+{
+  "success": false,
+  "status": 401,
+  "message": "Authentication required"
+}
+```
+
+2. Token Expired:
+
+```json
+{
+  "success": false,
+  "status": 401,
+  "message": "Token has expired"
+}
+```
+
+3. Invalid Token:
+
+```json
+{
+  "success": false,
+  "status": 401,
+  "message": "Invalid token"
 }
 ```
 
 ## 🛠️ Development Tools
 
 ### Database Management
+
 - Prisma Studio: `yarn prisma studio`
 - Access at: http://localhost:5555
 
 ### Redis Management
+
 - RedisInsight: http://localhost:5540
 - Credentials in .env file
 
 ## 📦 Project Structure
+
 ```
 src/
 ├── config/          # Configuration files
@@ -169,6 +252,7 @@ src/
 ```
 
 ## 🔒 Security Features
+
 - Secure password hashing
 - Email verification
 - JWT authentication
@@ -176,7 +260,9 @@ src/
 - CORS protection
 
 ## 🚦 Error Handling
+
 Standard HTTP status codes:
+
 - 200: Success
 - 201: Created
 - 400: Bad Request
@@ -185,6 +271,7 @@ Standard HTTP status codes:
 - 500: Server Error
 
 ## 🐳 Docker Services
+
 ```bash
 # Start services
 docker compose up -d
@@ -197,7 +284,9 @@ docker compose logs -f
 ```
 
 ## 📝 Environment Variables
+
 Required environment variables in `.env`:
+
 ```example.env
 # PostgreSQL
 POSTGRES_USER=admin
@@ -219,6 +308,7 @@ SMTP_PASSWORD=your-app-password
 ```
 
 ## 🤝 Contributing
+
 1. Fork the repository
 2. Create your feature branch
 3. Commit your changes
@@ -226,6 +316,9 @@ SMTP_PASSWORD=your-app-password
 5. Create a Pull Request
 
 ## 📄 License
+
 This project is licensed under the private License.
+
 ```
 
+```

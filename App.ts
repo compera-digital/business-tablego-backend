@@ -3,6 +3,7 @@
 import express, { Express, Application } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import passport from "passport";
 import { ResponseHandler, Logger, Helper } from "./src/utils";
 import { DbConnect } from "./src/core/infrastructure/database";
 import { EndPoints, AuthController, UserController } from "./src/routes";
@@ -27,34 +28,37 @@ import {
 import { RedisClient } from "./src/core/infrastructure/redis";
 import { AuthMiddleware } from "./src/middleware/auth";
 import { config } from "./src/config/config";
+import { GooglePassportStrategy } from "./src/middleware/passport/GoogleStrategy";
 
 export class App {
   private readonly app: Application;
   private readonly port: number;
   private readonly host: string;
   private readonly apiPrefix: string;
-  private readonly jwtConfig;
-  private readonly mailConfig;
-  private readonly codeExpirationTime;
-  private readonly cookieMaxAge;
+  private readonly jwtConfig: ReturnType<typeof config.getJwtConfig>;
+  private readonly mailConfig: ReturnType<typeof config.getMailConfig>;
+  private readonly codeExpirationTime: number;
+  private readonly cookieMaxAge: number;
 
-  private logger;
-  private responseHandler;
-  private helper;
-  private dbService;
-  private dbConnect;
-  private redisClient;
-  private mailService;
-  private verificationService;
-  private registerService;
-  private loginService;
-  private userService;
-  private authMiddleware;
-  private endPoints;
-  private authController;
-  private userController;
+  private readonly logger: Logger;
+  private readonly responseHandler: ResponseHandler;
+  private readonly helper: Helper;
+  private readonly dbService: IDbService;
+  private readonly dbConnect: DbConnect;
+  private readonly redisClient: RedisClient;
+  private readonly mailService: IMailService;
+  private readonly verificationService: IVerificationService;
+  private readonly registerService: IRegisterService;
+  private readonly loginService: ILoginService;
+  private readonly userService: UserService;
+  private readonly authMiddleware: AuthMiddleware;
+  private readonly endPoints: EndPoints;
+  private readonly authController: AuthController;
+  private readonly userController: UserController;
+  private readonly googleStrategy: GooglePassportStrategy;
 
   constructor() {
+    // Initialize Express app and config
     this.app = express();
     this.port = config.getServerConfig().port;
     this.host = config.getServerConfig().host;
@@ -64,27 +68,14 @@ export class App {
     this.codeExpirationTime = config.getVerificationConfig().codeExpirationTime;
     this.cookieMaxAge = config.getFullAuthConfig().jwt.cookieMaxAge;
 
-    this.setupMiddleware();
-    this.setupRoutes();
-  }
-
-  private setupMiddleware(): void {
-    // Express middleware
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(cookieParser());
-
-    // CORS configuration
-    this.app.use(cors(config.getCorsConfig()));
-
-    // Initialize services
+    // Initialize core services
     this.logger = new Logger("App");
     this.responseHandler = new ResponseHandler();
-
     this.helper = new Helper({
       jwtConfig: this.jwtConfig,
     });
 
+    // Initialize database services
     this.dbService = new DbService();
     this.dbConnect = DbConnect.getInstance({
       logger: new Logger("DbConnect"),
@@ -95,6 +86,7 @@ export class App {
       config: config.getRedisConfig(),
     });
 
+    // Initialize application services
     this.mailService = new MailService({
       config: this.mailConfig,
       logger: new Logger("MailService"),
@@ -126,6 +118,22 @@ export class App {
       helper: this.helper,
     });
 
+    this.userService = new UserService({
+      dbService: this.dbService,
+      helper: this.helper,
+      responseHandler: this.responseHandler,
+      logger: new Logger("UserService"),
+    });
+
+    // Initialize authentication strategies
+    this.googleStrategy = new GooglePassportStrategy({
+      googleConfig: config.getGoogleConfig(),
+      dbService: this.dbService,
+      helper: this.helper,
+      responseHandler: this.responseHandler,
+    });
+
+    // Initialize controllers and middleware
     this.authController = new AuthController({
       registerService: this.registerService,
       loginService: this.loginService,
@@ -133,6 +141,7 @@ export class App {
       logger: new Logger("AuthController"),
       verificationService: this.verificationService,
       cookieMaxAge: this.cookieMaxAge,
+      helper: this.helper,
     });
 
     this.authMiddleware = new AuthMiddleware({
@@ -141,24 +150,45 @@ export class App {
       logger: new Logger("AuthMiddleware"),
     });
 
-    this.userService = new UserService({
-      dbService: this.dbService,
-      helper: this.helper,
-      responseHandler: this.responseHandler,
-      logger: new Logger("UserService"),
-    });
-
     this.userController = new UserController({
       userService: this.userService,
       responseHandler: this.responseHandler,
       logger: new Logger("UserController"),
     });
 
+    // Initialize routes
     this.endPoints = new EndPoints({
       authController: this.authController,
       userController: this.userController,
       authMiddleware: this.authMiddleware,
     });
+
+    // Setup middleware and routes
+    this.setupMiddleware();
+    this.setupRoutes();
+  }
+
+  private setupMiddleware(): void {
+    // Express middleware
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(cookieParser());
+
+    // CORS configuration
+    this.app.use(
+      cors({
+        origin: [
+          "https://localhost:3005",
+          "http://localhost:3005",
+          "http://localhost:3000",
+        ],
+        credentials: true,
+      })
+    );
+
+    // Initialize Passport
+    this.app.use(passport.initialize());
+    this.googleStrategy.initialize();
   }
 
   private setupRoutes(): void {
