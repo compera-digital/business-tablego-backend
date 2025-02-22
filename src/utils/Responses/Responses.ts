@@ -282,6 +282,22 @@ export class ResponseHandler implements IResponseHandler {
     };
   }
 
+  checkAuthSuccess() {
+    return {
+      success: true,
+      status: 200,
+      message: "Authentication successful"
+    };
+  }
+
+  checkAuthFailed() {
+    return {
+      success: false,
+      status: 401,
+      message: "Authentication failed"
+    };
+  }
+
   forbidden() {
     return {
       success: false,

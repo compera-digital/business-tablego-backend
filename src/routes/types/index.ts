@@ -6,12 +6,14 @@ import { IAuthMiddleware } from "@/middleware/types";
 export interface IAuthController {
   register(req: Request, res: Response): Promise<void>;
   login(req: Request, res: Response): Promise<void>;
+  googleLogin(req: Request, res: Response): Promise<void>;
+  logout(req: Request, res: Response): Promise<void>;
   verifyCode(req: Request, res: Response): Promise<void>;
   resendCode(req: Request, res: Response): Promise<void>;
   forgotPassword(req: Request, res: Response): Promise<void>;
   verifyResetToken(req: Request, res: Response): Promise<void>;
   resetPassword(req: Request, res: Response): Promise<void>;
-  googleLogin(req: Request, res: Response): Promise<void>;
+  checkAuth(req: Request, res: Response): Promise<void>;
 }
 
 export interface IAuthControllerDependencies {

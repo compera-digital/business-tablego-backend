@@ -175,12 +175,24 @@ export interface IResponseHandler {
     message: string;
   };
 
-  forbidden(): {
+  checkAuthSuccess(): {
     success: boolean;
     status: number;
     message: string;
   };
 
+  checkAuthFailed(): {
+    success: boolean;
+    status: number;
+    message: string;
+  };
+
+  forbidden(): {
+    success: boolean;
+    status: number;
+    message: string;
+  };
+  
   invalidToken(): {
     success: boolean;
     status: number;

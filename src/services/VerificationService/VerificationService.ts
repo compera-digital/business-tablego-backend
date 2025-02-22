@@ -186,4 +186,22 @@ export class VerificationService implements IVerificationService {
       throw error;
     }
   }
+
+  public async checkAuth(cookies: { accessToken?: string }) {
+    try {
+      const token = cookies.accessToken;
+
+      if (!token) {
+        this.logger.warn('Authentication check failed: No token in cookies');
+        return this.responseHandler.checkAuthFailed();
+      }
+
+      this.logger.debug('Authentication token found');
+      return this.responseHandler.checkAuthSuccess();
+
+    } catch (error) {
+      this.logger.error('Authentication check error', error as Error);
+      throw error;
+    }
+  }
 }

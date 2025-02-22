@@ -38,6 +38,12 @@ export class EndPoints implements IEndPoints {
     );
 
     this.router.post(
+      "/auth/logout",
+      this.authMiddleware.authenticate,
+      this.authController.logout.bind(this.authController)
+    );
+
+    this.router.post(
       "/auth/verify-code", 
       rateLimits.verifyCode,
       this.authController.verifyCode.bind(this.authController)
@@ -67,18 +73,19 @@ export class EndPoints implements IEndPoints {
       this.authController.resetPassword.bind(this.authController)
     );
 
-    this.router.post("/auth/check-auth", this.authMiddleware.authenticate);
+    this.router.get(
+      "/auth/check-auth",
+      this.authMiddleware.authenticate,
+      this.authController.checkAuth.bind(this.authController)
+    );
 
     // User Routes
     this.router.post(
       "/user/change-password",
-      this.authMiddleware.authenticate,
       rateLimits.changePassword,
+      this.authMiddleware.authenticate,
       this.userController.changePassword.bind(this.userController)
     );
-
-
-
   }
 
   public getRouter(): Router {

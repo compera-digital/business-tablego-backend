@@ -65,6 +65,20 @@
       }
     }
 
+    async logout( _req: Request, res: Response) {
+      try {
+        res.clearCookie('accessToken', {
+          httpOnly: true,
+          sameSite: 'strict'
+        });
+        this.logger.info('User logged out successfully');
+        res.status(200).json(this.responseHandler.logoutSuccess());
+      } catch (error) {
+        this.logger.error('Logout failed', error as Error);
+        res.status(500).json(this.responseHandler.unexpectedError('logout'));
+      }
+    }
+
     async verifyCode(req: Request, res: Response) {
       const { email, code } = req.body;
       try {
@@ -129,5 +143,16 @@
         res.status(500).json(this.responseHandler.unexpectedError("password reset"));
       }
     }
+
+    async checkAuth(req: Request, res: Response) {
+      try {
+        const response = await this.verificationService.checkAuth(req.cookies);
+        res.status(response.status).json(response);
+      } catch (error) {
+        this.logger.error(`Authentication check failed: ${(error as Error).message}`);
+        res.status(500).json(this.responseHandler.unexpectedError("authentication check"));
+      }
+    }
+
 
   }
