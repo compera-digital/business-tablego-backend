@@ -27,5 +27,5 @@ jobs:
         yarn install && \
         docker compose down && \
         docker compose up -d && \
-        npx prisma migrate deploy && \
+        /usr/local/bin/npx prisma migrate deploy && \
         sudo systemctl restart business-tablego-backend.service"
