@@ -7,12 +7,13 @@ export class ResponseHandler implements IResponseHandler {
     return {
       success: true,
       status: 201,
-      message: "Registration successful! Please check your email for verification.",
-      user: { 
-        name, 
-        lastName, 
-        email 
-      }
+      message:
+        "Registration successful! Please check your email for verification.",
+      user: {
+        name,
+        lastName,
+        email,
+      },
     };
   }
 
@@ -21,22 +22,22 @@ export class ResponseHandler implements IResponseHandler {
       success: true,
       status: 200,
       message: "Logged in successfully.",
-      user: { 
+      user: {
         id: user.id,
-        name: user.name, 
-        lastName: user.lastName, 
-        email: user.email, 
-        isVerified: user.isVerified 
+        name: user.name,
+        lastName: user.lastName,
+        email: user.email,
+        isVerified: user.isVerified,
       },
-      token
+      token,
     };
   }
 
   logoutSuccess() {
-    return { 
-      success: true, 
-      status: 200, 
-      message: "Logged out successfully." 
+    return {
+      success: true,
+      status: 200,
+      message: "Logged out successfully.",
     };
   }
 
@@ -46,57 +47,58 @@ export class ResponseHandler implements IResponseHandler {
       success: true,
       status: 200,
       message: "Verification successful.",
-      user: { 
-        name: user.name, 
-        lastName: user.lastName, 
-        email: user.email, 
-        isVerified: user.isVerified 
+      user: {
+        name: user.name,
+        lastName: user.lastName,
+        email: user.email,
+        isVerified: user.isVerified,
       },
-      token
+      token,
     };
   }
 
   verificationEmailResent() {
-    return { 
-      success: true, 
-      status: 200, 
-      message: "Verification email resent. Please check your inbox." 
+    return {
+      success: true,
+      status: 200,
+      message: "Verification email resent. Please check your inbox.",
     };
   }
 
   verificationCodeExpired() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "Verification code expired. Please request a new code." 
+    return {
+      success: false,
+      status: 400,
+      message: "Verification code expired. Please request a new code.",
     };
   }
 
   invalidVerificationCode() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "Invalid verification code." 
+    return {
+      success: false,
+      status: 400,
+      message: "Invalid verification code.",
     };
   }
 
   verificationCodeNotExpired(email: string, remainingTime: number) {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "Verification code not expired. Please check your email for the code.", 
-      data: { 
-        email, 
-        remainingTime 
-      } 
+    return {
+      success: false,
+      status: 400,
+      message:
+        "Verification code not expired. Please check your email for the code.",
+      data: {
+        email,
+        remainingTime,
+      },
     };
   }
 
   newVerificationCodeSent() {
-    return { 
-      success: true, 
-      status: 200, 
-      message: "New verification code sent. Please check your email." 
+    return {
+      success: true,
+      status: 200,
+      message: "New verification code sent. Please check your email.",
     };
   }
 
@@ -105,89 +107,89 @@ export class ResponseHandler implements IResponseHandler {
     return {
       success: false,
       status: 400,
-      message: "Current password is incorrect"
+      message: "Current password is incorrect",
     };
-  } 
+  }
 
   passwordChangeSuccess() {
     return {
       success: true,
       status: 200,
-      message: "Password changed successfully"
+      message: "Password changed successfully",
     };
   }
-  
+
   // Password Reset Responses
   passwordResetLinkSent() {
-    return { 
-      success: true, 
-      status: 200, 
-      message: "Password reset link sent. Please check your email." 
+    return {
+      success: true,
+      status: 200,
+      message: "Password reset link sent. Please check your email.",
     };
   }
 
   nonExistentEmailForPasswordReset() {
-    return { 
-      success: false, 
-      status: 404, 
-      message: "Password reset requested for non-existent email" 
+    return {
+      success: false,
+      status: 404,
+      message: "Password reset requested for non-existent email",
     };
   }
 
   passwordResetLinkExpired() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "Password reset link expired. Please request a new link." 
+    return {
+      success: false,
+      status: 400,
+      message: "Password reset link expired. Please request a new link.",
     };
   }
 
   invalidPasswordResetLink() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "Invalid password reset link." 
+    return {
+      success: false,
+      status: 400,
+      message: "Invalid password reset link.",
     };
   }
 
   passwordResetLinkVerified() {
-    return { 
-      success: true, 
-      status: 200, 
-      message: "Password reset link verified." 
+    return {
+      success: true,
+      status: 200,
+      message: "Password reset link verified.",
     };
   }
 
   passwordResetSuccess() {
-    return { 
-      success: true, 
-      status: 200, 
-      message: "Password reset successful." 
+    return {
+      success: true,
+      status: 200,
+      message: "Password reset successful.",
     };
   }
 
   passwordResetFailed() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "Password reset failed." 
+    return {
+      success: false,
+      status: 400,
+      message: "Password reset failed.",
     };
   }
 
   // User Status Responses
   userNotFound() {
-    return { 
-      success: false, 
-      status: 404, 
-      message: "User not found." 
+    return {
+      success: false,
+      status: 404,
+      message: "User not found.",
     };
   }
 
   userAlreadyVerified() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "User is already verified." 
+    return {
+      success: false,
+      status: 400,
+      message: "User is already verified.",
     };
   }
 
@@ -196,12 +198,12 @@ export class ResponseHandler implements IResponseHandler {
       success: false,
       status: 400,
       message: "Account pending verification. Please check your email.",
-      data: { 
-        email, 
-        isVerified, 
-        remainingTime 
+      data: {
+        email,
+        isVerified,
+        remainingTime,
       },
-      error: "VERIFICATION_PENDING"
+      error: "VERIFICATION_PENDING",
     };
   }
 
@@ -210,57 +212,57 @@ export class ResponseHandler implements IResponseHandler {
       success: false,
       status: 400,
       message: "Account already exists. Please login.",
-      error: "EMAIL_IN_USE"
+      error: "EMAIL_IN_USE",
     };
   }
 
   emailRegisteredNotVerified() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "Email already registered but not verified." 
+    return {
+      success: false,
+      status: 400,
+      message: "Email already registered but not verified.",
     };
   }
 
   // Validation Responses
   invalidEmailFormat() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "Invalid email format." 
+    return {
+      success: false,
+      status: 400,
+      message: "Invalid email format.",
     };
   }
 
   invalidEmailOrPassword() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "Invalid email or password." 
+    return {
+      success: false,
+      status: 400,
+      message: "Invalid email or password.",
     };
   }
 
   validationError() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "Invalid input format." 
+    return {
+      success: false,
+      status: 400,
+      message: "Invalid input format.",
     };
   }
 
   sameEmailProvided() {
-    return { 
-      success: false, 
-      status: 400, 
-      message: "This email is already registered but not verified." 
+    return {
+      success: false,
+      status: 400,
+      message: "This email is already registered but not verified.",
     };
   }
 
   // Generic Responses
   error(message: string, status = 400) {
-    return { 
-      success: false, 
-      status, 
-      message 
+    return {
+      success: false,
+      status,
+      message,
     };
   }
 
@@ -269,7 +271,7 @@ export class ResponseHandler implements IResponseHandler {
       success: false,
       status: 500,
       message: `An unexpected error occurred during ${operation}. Please try again later.`,
-      error: "INTERNAL_SERVER_ERROR"
+      error: "INTERNAL_SERVER_ERROR",
     };
   }
 
@@ -278,15 +280,16 @@ export class ResponseHandler implements IResponseHandler {
     return {
       success: false,
       status: 401,
-      message: "Authentication required"
+      message: "Authentication required",
     };
   }
 
-  checkAuthSuccess() {
+  checkAuthSuccess(user?: any) {
     return {
       success: true,
       status: 200,
-      message: "Authentication successful"
+      message: "Authentication successful",
+      ...(user && { user }),
     };
   }
 
@@ -294,7 +297,7 @@ export class ResponseHandler implements IResponseHandler {
     return {
       success: false,
       status: 401,
-      message: "Authentication failed"
+      message: "Authentication failed",
     };
   }
 
@@ -302,7 +305,7 @@ export class ResponseHandler implements IResponseHandler {
     return {
       success: false,
       status: 403,
-      message: "Access forbidden"
+      message: "Access forbidden",
     };
   }
 
@@ -310,7 +313,7 @@ export class ResponseHandler implements IResponseHandler {
     return {
       success: false,
       status: 401,
-      message: "Invalid token"
+      message: "Invalid token",
     };
   }
 
@@ -318,7 +321,7 @@ export class ResponseHandler implements IResponseHandler {
     return {
       success: false,
       status: 401,
-      message: "Token has expired"
+      message: "Token has expired",
     };
   }
 }

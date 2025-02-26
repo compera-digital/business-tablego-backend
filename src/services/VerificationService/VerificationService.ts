@@ -1,6 +1,9 @@
 // VerificationService.ts
 
-import { IVerificationService, IVerificationServiceDependencies } from "./types";
+import {
+  IVerificationService,
+  IVerificationServiceDependencies,
+} from "./types";
 
 export class VerificationService implements IVerificationService {
   private readonly mailService;
@@ -11,14 +14,14 @@ export class VerificationService implements IVerificationService {
   private readonly codeExpirationTime;
   private readonly dbService;
 
-  constructor({ 
-    mailService, 
-    redisClient, 
-    helper, 
-    logger, 
-    responseHandler, 
-    codeExpirationTime, 
-    dbService 
+  constructor({
+    mailService,
+    redisClient,
+    helper,
+    logger,
+    responseHandler,
+    codeExpirationTime,
+    dbService,
   }: IVerificationServiceDependencies) {
     this.mailService = mailService;
     this.redisClient = redisClient;
@@ -33,12 +36,10 @@ export class VerificationService implements IVerificationService {
   async generateCode(email: string): Promise<string> {
     try {
       const code = await this.helper.generateVerificationCode();
-      await this.redisClient.getClient().setex(
-        `verification:${email}`, 
-        this.codeExpirationTime, 
-        code
-      );
-      
+      await this.redisClient
+        .getClient()
+        .setex(`verification:${email}`, this.codeExpirationTime, code);
+
       await this.mailService.sendVerificationEmail(email, code);
       return code;
     } catch (error) {
@@ -50,7 +51,7 @@ export class VerificationService implements IVerificationService {
   async verifyCode(email: string, code: string) {
     try {
       const user = await this.dbService.findUserByEmail(email);
-      
+
       if (!user) {
         this.logger.info("User not found during verification", { email });
         return this.responseHandler.userNotFound();
@@ -61,7 +62,9 @@ export class VerificationService implements IVerificationService {
         return this.responseHandler.userAlreadyVerified();
       }
 
-      const storedCode = await this.redisClient.getClient().get(`verification:${email}`);
+      const storedCode = await this.redisClient
+        .getClient()
+        .get(`verification:${email}`);
       if (!storedCode) {
         this.logger.info("Verification code expired", { email });
         return this.responseHandler.verificationCodeExpired();
@@ -76,9 +79,14 @@ export class VerificationService implements IVerificationService {
       await this.redisClient.getClient().del(`verification:${email}`);
 
       const { password: _, ...userWithoutPassword } = user;
-      const accessToken = await this.helper.generateAccessToken(userWithoutPassword);
-      
-      return this.responseHandler.verificationSuccess(userWithoutPassword, accessToken);
+      const accessToken = await this.helper.generateAccessToken(
+        userWithoutPassword
+      );
+
+      return this.responseHandler.verificationSuccess(
+        userWithoutPassword,
+        accessToken
+      );
     } catch (error) {
       this.logger.error("Error verifying code", error as Error);
       throw error;
@@ -88,7 +96,7 @@ export class VerificationService implements IVerificationService {
   async resendCode(email: string) {
     try {
       const user = await this.dbService.findUserByEmail(email);
-      
+
       if (!user) {
         this.logger.info("User not found for resending code", { email });
         return this.responseHandler.userNotFound();
@@ -99,10 +107,15 @@ export class VerificationService implements IVerificationService {
         return this.responseHandler.userAlreadyVerified();
       }
 
-      const remainingTime = await this.redisClient.getClient().ttl(`verification:${email}`);
+      const remainingTime = await this.redisClient
+        .getClient()
+        .ttl(`verification:${email}`);
       if (remainingTime > 0) {
         this.logger.info("Previous code still valid", { email, remainingTime });
-        return this.responseHandler.verificationCodeNotExpired(email, remainingTime);
+        return this.responseHandler.verificationCodeNotExpired(
+          email,
+          remainingTime
+        );
       }
 
       await this.generateCode(email);
@@ -124,12 +137,14 @@ export class VerificationService implements IVerificationService {
 
       const resetToken = await this.helper.generatePasswordResetToken(user);
       const resetLink = `http://localhost:3000/reset-password?resetToken=${resetToken}`;
-      
-      await this.redisClient.getClient().setex(
-        `passwordReset:${user.email}`, 
-        this.codeExpirationTime,
-        resetToken
-      );
+
+      await this.redisClient
+        .getClient()
+        .setex(
+          `passwordReset:${user.email}`,
+          this.codeExpirationTime,
+          resetToken
+        );
 
       await this.mailService.sendPasswordResetEmail(email, resetLink);
       return this.responseHandler.passwordResetLinkSent();
@@ -141,22 +156,24 @@ export class VerificationService implements IVerificationService {
 
   async verifyPasswordResetToken(resetToken: string) {
     try {
-      const verification = await this.helper.verifyPasswordResetToken(resetToken);
+      const verification = await this.helper.verifyPasswordResetToken(
+        resetToken
+      );
       if (!verification.valid || !verification.email) {
         return this.responseHandler.passwordResetLinkExpired();
       }
 
-      const storedToken = await this.redisClient.getClient().get(
-        `passwordReset:${verification.email}`
-      );
-      
+      const storedToken = await this.redisClient
+        .getClient()
+        .get(`passwordReset:${verification.email}`);
+
       if (!storedToken) {
         return this.responseHandler.passwordResetLinkExpired();
       }
 
-      return storedToken === resetToken ? 
-        this.responseHandler.passwordResetLinkVerified() : 
-        this.responseHandler.invalidPasswordResetLink();
+      return storedToken === resetToken
+        ? this.responseHandler.passwordResetLinkVerified()
+        : this.responseHandler.invalidPasswordResetLink();
     } catch (error) {
       this.logger.error("Error verifying reset token", error as Error);
       throw error;
@@ -165,13 +182,17 @@ export class VerificationService implements IVerificationService {
 
   async resetPassword(resetToken: string, newPassword: string) {
     try {
-      const verification = await this.helper.verifyPasswordResetToken(resetToken);
+      const verification = await this.helper.verifyPasswordResetToken(
+        resetToken
+      );
       if (!verification.valid || !verification.email) {
         return this.responseHandler.passwordResetLinkExpired();
       }
 
       const email = verification.email;
-      const storedToken = await this.redisClient.getClient().get(`passwordReset:${email}`);
+      const storedToken = await this.redisClient
+        .getClient()
+        .get(`passwordReset:${email}`);
       if (!storedToken || storedToken !== resetToken) {
         return this.responseHandler.invalidPasswordResetLink();
       }
@@ -187,21 +208,30 @@ export class VerificationService implements IVerificationService {
     }
   }
 
-  public async checkAuth(cookies: { accessToken?: string }) {
+  public async checkAuth(cookies: { accessToken?: string }, user?: any) {
     try {
+      // If user object exists, it means the token was already verified by the middleware
+      if (user) {
+        this.logger.debug("User authenticated successfully");
+        return this.responseHandler.checkAuthSuccess(user);
+      }
+
       const token = cookies.accessToken;
 
       if (!token) {
-        this.logger.warn('Authentication check failed: No token in cookies');
+        this.logger.warn("Authentication check failed: No token in cookies");
         return this.responseHandler.checkAuthFailed();
       }
 
-      this.logger.debug('Authentication token found');
-      return this.responseHandler.checkAuthSuccess();
-
+      this.logger.debug(
+        "Authentication token found but user data not available"
+      );
+      return this.responseHandler.checkAuthFailed();
     } catch (error) {
-      this.logger.error('Authentication check error', error as Error);
-      throw error;
+      this.logger.error(
+        `Authentication check error: ${(error as Error).message}`
+      );
+      return this.responseHandler.checkAuthFailed();
     }
   }
 }

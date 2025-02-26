@@ -2,13 +2,20 @@ import { ILoginResponseDto, IVerificationResponseDto } from "@/core/types";
 
 export interface IResponseHandler {
   // Auth Responses
-  registrationSuccess(name: string, lastName: string, email: string): {
+  registrationSuccess(
+    name: string,
+    lastName: string,
+    email: string
+  ): {
     success: boolean;
     status: number;
     message: string;
     user: { name: string; lastName: string; email: string };
   };
-  loginSuccess(user: ILoginResponseDto, token: string): {
+  loginSuccess(
+    user: ILoginResponseDto,
+    token: string
+  ): {
     success: boolean;
     status: number;
     message: string;
@@ -22,7 +29,10 @@ export interface IResponseHandler {
   };
 
   // Verification Responses
-  verificationSuccess(user: IVerificationResponseDto, token: string): {
+  verificationSuccess(
+    user: IVerificationResponseDto,
+    token: string
+  ): {
     success: boolean;
     status: number;
     message: string;
@@ -44,7 +54,10 @@ export interface IResponseHandler {
     status: number;
     message: string;
   };
-  verificationCodeNotExpired(email: string, remainingTime: number): {
+  verificationCodeNotExpired(
+    email: string,
+    remainingTime: number
+  ): {
     success: boolean;
     status: number;
     message: string;
@@ -61,7 +74,7 @@ export interface IResponseHandler {
     success: boolean;
     status: number;
     message: string;
-  };  
+  };
   passwordChangeSuccess(): {
     success: boolean;
     status: number;
@@ -116,7 +129,11 @@ export interface IResponseHandler {
     status: number;
     message: string;
   };
-  userNotVerified(email: string, isVerified: boolean, remainingTime: number): {
+  userNotVerified(
+    email: string,
+    isVerified: boolean,
+    remainingTime: number
+  ): {
     success: boolean;
     status: number;
     message: string;
@@ -157,7 +174,10 @@ export interface IResponseHandler {
   };
 
   // Generic Responses
-  error(message: string, status?: number): {
+  error(
+    message: string,
+    status?: number
+  ): {
     success: boolean;
     status: number;
     message: string;
@@ -175,10 +195,11 @@ export interface IResponseHandler {
     message: string;
   };
 
-  checkAuthSuccess(): {
+  checkAuthSuccess(user?: any): {
     success: boolean;
     status: number;
     message: string;
+    user?: any;
   };
 
   checkAuthFailed(): {
@@ -192,7 +213,7 @@ export interface IResponseHandler {
     status: number;
     message: string;
   };
-  
+
   invalidToken(): {
     success: boolean;
     status: number;
@@ -205,6 +226,3 @@ export interface IResponseHandler {
     message: string;
   };
 }
-
-
-  

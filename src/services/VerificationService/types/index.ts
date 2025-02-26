@@ -10,7 +10,7 @@ export interface IVerificationService {
   forgotPassword(email: string): Promise<any>;
   verifyPasswordResetToken(token: string): Promise<any>;
   resetPassword(token: string, newPassword: string): Promise<any>;
-  checkAuth(cookies: { accessToken?: string }): Promise<any>;
+  checkAuth(cookies: { accessToken?: string }, user?: any): Promise<any>;
 }
 
 export interface IVerificationServiceDependencies {
@@ -21,4 +21,4 @@ export interface IVerificationServiceDependencies {
   logger: ILogger;
   responseHandler: IResponseHandler;
   codeExpirationTime: number;
-} 
+}
