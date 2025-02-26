@@ -13,13 +13,22 @@ const corsMiddleware = () => {
       // Get the allowed origins from config
       const allowedOrigins = config.getCorsConfig().origin.split(",");
 
-      // If no origin provided (like a same-origin request) or the origin is in the allowed list
-      if (!origin || allowedOrigins.includes(origin)) {
+      // If no origin provided (like from Postman or a same-origin request)
+      // or the origin is in the allowed list, allow the request
+      if (
+        !origin ||
+        allowedOrigins.some((allowedOrigin: string) =>
+          origin.includes(allowedOrigin)
+        )
+      ) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
       }
     },
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Content-Type,Authorization",
+    exposedHeaders: "Set-Cookie",
   };
 
   return cors(corsOptions);
