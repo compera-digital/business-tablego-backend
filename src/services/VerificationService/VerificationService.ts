@@ -4,6 +4,8 @@ import {
   IVerificationService,
   IVerificationServiceDependencies,
 } from "./types";
+import jwt from "jsonwebtoken";
+import { DecodedAccessToken } from "../../middleware/types";
 
 export class VerificationService implements IVerificationService {
   private readonly mailService;
@@ -13,6 +15,7 @@ export class VerificationService implements IVerificationService {
   private readonly responseHandler;
   private readonly codeExpirationTime;
   private readonly dbService;
+  private readonly jwtToken;
 
   constructor({
     mailService,
@@ -30,6 +33,8 @@ export class VerificationService implements IVerificationService {
     this.logger = logger;
     this.codeExpirationTime = codeExpirationTime;
     this.dbService = dbService;
+    // Get JWT token from helper
+    this.jwtToken = process.env.JWT_SECRET || "your-secret-key";
   }
 
   // Email Verification Methods
@@ -208,14 +213,8 @@ export class VerificationService implements IVerificationService {
     }
   }
 
-  public async checkAuth(cookies: { accessToken?: string }, user?: any) {
+  public async checkAuth(cookies: { accessToken?: string }) {
     try {
-      // If user object exists, it means the token was already verified by the middleware
-      if (user) {
-        this.logger.debug("User authenticated successfully");
-        return this.responseHandler.checkAuthSuccess(user);
-      }
-
       const token = cookies.accessToken;
 
       if (!token) {
@@ -223,10 +222,33 @@ export class VerificationService implements IVerificationService {
         return this.responseHandler.checkAuthFailed();
       }
 
-      this.logger.debug(
-        "Authentication token found but user data not available"
-      );
-      return this.responseHandler.checkAuthFailed();
+      // Verify token and get user information
+      try {
+        const decoded = jwt.verify(token, this.jwtToken) as DecodedAccessToken;
+
+        if (decoded.type !== "access") {
+          this.logger.warn("Invalid token type", { type: decoded.type });
+          return this.responseHandler.checkAuthFailed();
+        }
+
+        const user = await this.dbService.findUserById(decoded.id);
+
+        if (!user) {
+          this.logger.warn("User not found for token");
+          return this.responseHandler.checkAuthFailed();
+        }
+
+        // Remove sensitive information
+        const { password, ...userWithoutPassword } = user;
+
+        this.logger.debug("User authenticated successfully");
+        return this.responseHandler.checkAuthSuccess(userWithoutPassword);
+      } catch (jwtError) {
+        this.logger.warn(
+          `Token verification failed: ${(jwtError as Error).message}`
+        );
+        return this.responseHandler.checkAuthFailed();
+      }
     } catch (error) {
       this.logger.error(
         `Authentication check error: ${(error as Error).message}`
