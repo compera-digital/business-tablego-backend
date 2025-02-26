@@ -6,28 +6,29 @@ import cors from "cors";
 import { ResponseHandler, Logger, Helper } from "./src/utils";
 import { DbConnect } from "./src/core/infrastructure/database";
 import { EndPoints, AuthController, UserController } from "./src/routes";
-import { 
-  RegisterService, 
-  LoginService, 
-  DbService, 
-  MailService, 
-  VerificationService, 
-  UserService
+import {
+  RegisterService,
+  LoginService,
+  DbService,
+  MailService,
+  VerificationService,
+  UserService,
 } from "./src/services";
 
-import { 
+import {
   IRegisterService,
   ILoginService,
   IDbService,
-  IMailService, 
+  IMailService,
   IVerificationService,
-  ILogoutService
+  ILogoutService,
 } from "./src/services/types";
 
 import { RedisClient } from "./src/core/infrastructure/redis";
 import { AuthMiddleware } from "./src/middleware/auth";
-import { OAuth2Client } from 'google-auth-library';
-import { config } from './src/config/config';
+import { OAuth2Client } from "google-auth-library";
+import { config } from "./src/config/config";
+import corsMiddleware from "./src/middleware/corsMiddleware";
 
 export class App {
   private readonly app: Application;
@@ -57,7 +58,7 @@ export class App {
     this.port = config.getPort();
     this.jwtConfig = config.getJwtConfig();
     this.mailConfig = config.getMailConfig();
-    
+
     this.setupMiddleware();
     this.setupRoutes();
   }
@@ -67,10 +68,9 @@ export class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
-    
-    // CORS configuration
-    this.app.use(cors(config.getCorsConfig()));
 
+    // CORS configuration
+    this.app.use(corsMiddleware());
 
     this.codeExpirationTime = config.getVerificationConfig().codeExpirationTime;
     this.cookieMaxAge = config.getFullAuthConfig().jwt.cookieMaxAge;
@@ -78,13 +78,13 @@ export class App {
     // Initialize services
     this.logger = new Logger("App");
     this.responseHandler = new ResponseHandler();
-    
+
     const googleClient = new OAuth2Client(config.getGoogleConfig().clientId);
-    this.helper = new Helper({ 
+    this.helper = new Helper({
       jwtConfig: this.jwtConfig,
-      googleClientId: googleClient 
+      googleClientId: googleClient,
     });
-    
+
     this.dbService = new DbService();
     this.dbConnect = DbConnect.getInstance({
       logger: new Logger("DbConnect"),
@@ -145,21 +145,20 @@ export class App {
       dbService: this.dbService,
       helper: this.helper,
       responseHandler: this.responseHandler,
-      logger: new Logger("UserService")
+      logger: new Logger("UserService"),
     });
 
     this.userController = new UserController({
       userService: this.userService,
       responseHandler: this.responseHandler,
-      logger: new Logger("UserController")
+      logger: new Logger("UserController"),
     });
 
     this.endpoints = new EndPoints({
       authController: this.authController,
       userController: this.userController,
-      authMiddleware: this.authMiddleware
+      authMiddleware: this.authMiddleware,
     });
-
   }
 
   private setupRoutes(): void {
@@ -175,7 +174,9 @@ export class App {
 
       this.app.listen(this.port, () => {
         const serverConfig = config.getServerConfig();
-        this.logger.info(`✅ Server is running on http://${serverConfig.host}:${this.port}`);
+        this.logger.info(
+          `✅ Server is running on http://${serverConfig.host}:${this.port}`
+        );
       });
     } catch (error) {
       this.logger.error("❌ Server failed to start", error as Error);
