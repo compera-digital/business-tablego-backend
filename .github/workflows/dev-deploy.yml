@@ -2,30 +2,32 @@ name: Deploy to Development
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.7.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-    - name: Add host key to known_hosts
-      run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-    - name: Deploy to server
-      run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "cd ${{ secrets.PROJECT_PATH }} && \
-        git checkout main && \
-        git pull && \
-        yarn install && \
-        docker compose down && \
-        docker compose up -d && \
-        /usr/local/bin/npx prisma migrate deploy && \
-        sudo systemctl restart business-tablego-backend.service"
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Add host key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+      - name: Deploy to server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "cd ${{ secrets.PROJECT_PATH }} && \
+          git fetch origin && \
+          git reset --hard origin/main && \
+          git checkout main && \
+          git pull && \
+          yarn install && \
+          docker compose down && \
+          docker compose up -d && \
+          /usr/local/bin/npx prisma migrate deploy && \
+          sudo systemctl restart business-tablego-backend.service"
